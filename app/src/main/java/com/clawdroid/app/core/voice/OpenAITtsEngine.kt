@@ -35,7 +35,8 @@ class OpenAITtsEngine(
     private val apiKey: String
         get() = AppConfigManager.openaiTtsApiKey
             .takeIf { it.isNotBlank() }
-            ?: AppConfigManager.apiKey
+            // Never fall back to the Claude key: it would be sent to api.openai.com.
+            ?: ""
 
     private val currentVoice: String
         get() = AppConfigManager.ttsVoice.takeIf { it.isNotBlank() } ?: "alloy"

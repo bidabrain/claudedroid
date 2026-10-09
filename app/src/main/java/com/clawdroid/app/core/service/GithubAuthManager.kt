@@ -80,7 +80,7 @@ object GithubAuthManager {
                 readTimeout = 5000
                 setRequestProperty("Authorization", "Bearer $token")
                 setRequestProperty("Accept", "application/vnd.github.v3+json")
-                setRequestProperty("User-Agent", "ClawDroid-App")
+                setRequestProperty("User-Agent", "ClaudeDroid-App")
             }
             if (connection.responseCode == 200) {
                 val text = connection.inputStream.bufferedReader().use { it.readText() }

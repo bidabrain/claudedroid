@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shared -->
+    <string name="config_back">返回</string>
+    <string name="config_cancel">取消</string>
+    <string name="config_cancel_caps">取消</string>
+    <string name="config_create_caps">创建</string>
+    <string name="config_save_caps">保存</string>
+    <string name="config_reset_caps">重置</string>
+    <string name="config_done">完成</string>
+    <string name="config_loading">加载中…</string>
+    <string name="config_modified">修改于 %1$s</string>
+    <string name="config_file_saved_toast">已保存 %1$s</string>
+
+    <!-- Channels config screen -->
+    <string name="config_channels_title">已连接渠道</string>
+    <string name="config_channels_connected_header">已连接渠道</string>
+    <string name="config_channels_available_header">可用渠道</string>
+    <string name="config_channels_status_connected">已连接</string>
+    <string name="config_channels_status_not_connected">未连接</string>
+    <string name="config_channels_whatsapp_desc">通过 WaCLI 接收并回复 WhatsApp 消息</string>
+    <string name="config_channels_telegram_desc">接收 Telegram 消息并发送回复</string>
+    <string name="config_channels_telegram_connected_as">已连接为 @clawdroid_bot</string>
+    <string name="config_channels_slack_desc">集成 Slack 工作区，进行团队协作</string>
+    <string name="config_channels_slack_connected">已连接到工作区</string>
+    <string name="config_channels_slack_connected_lower">已连接到工作区</string>
+    <string name="config_channels_discord_desc">连接 Discord 服务器，与社区互动</string>
+    <string name="config_channels_email_desc">通过已配置的账号收发邮件</string>
+    <string name="config_channels_webhook_desc">适用于任意 HTTP 服务集成的通用 Webhook</string>
+    <string name="config_channels_qr_title">%1$s %2$s - 二维码</string>
+    <string name="config_channels_disconnect">断开连接</string>
+    <string name="config_channels_connect">连接</string>
+    <string name="config_channels_setup_instructions">设置说明：</string>
+    <string name="config_channels_whatsapp_steps">1. 安装 WaCLI\n2. 扫描二维码进行验证\n3. 授予权限</string>
+    <string name="config_channels_show_qr">显示二维码</string>
+    <string name="config_channels_bot_token">Bot Token</string>
+    <string name="config_channels_authorize_slack">使用 Slack 授权</string>
+    <string name="config_channels_server_id">服务器 ID（Guild ID）</string>
+    <string name="config_channels_email_address">邮箱地址</string>
+    <string name="config_channels_app_password">应用专用密码 / Token</string>
+    <string name="config_channels_webhook_url">Webhook URL</string>
+    <string name="config_channels_webhook_endpoint">你的 Webhook 端点：\n%1$s</string>
+    <string name="config_channels_qr_code">二维码</string>
+    <string name="config_channels_qr_scan_hint">使用移动设备扫描此二维码进行验证</string>
+
+    <!-- Skills screen -->
+    <string name="config_skills_title">Skills</string>
+    <string name="config_skills_create_cd">创建 Skill</string>
+    <string name="config_skills_settings_header">Skill 设置</string>
+    <string name="config_skills_heartbeat_title">自主心跳</string>
+    <string name="config_skills_heartbeat_desc">执行 %1$s 中的清单任务</string>
+    <string name="config_skills_interval_minutes">间隔（分钟）</string>
+    <string name="config_skills_empty_title">尚未安装 Skill</string>
+    <string name="config_skills_empty_desc">创建一个 Markdown Skill，为智能体添加新行为。</string>
+    <string name="config_skills_create">创建 Skill</string>
+    <string name="config_skills_reset_toast">已重置内置 Skill</string>
+    <string name="config_skills_saved_toast">Skill 已保存</string>
+    <string name="config_skills_reset_cd">重置内置 Skill</string>
+
+    <!-- Workspace files screen -->
+    <string name="config_workspace_title">工作区文件</string>
+    <string name="config_workspace_header">智能体工作区</string>
+
+    <!-- Config editor screen -->
+    <string name="config_editor_label_agents">%1$s — 智能体指令</string>
+    <string name="config_editor_label_sould">%1$s — 智能体身份</string>
+    <string name="config_editor_edit_file">编辑 %1$s</string>
+    <string name="config_editor_storage_note">更改会保存到应用的内部存储中。智能体启动时会读取这些文件。</string>
+    <string name="config_editor_placeholder"># 输入 Markdown 内容…</string>
+    <string name="config_editor_save_changes">保存更改</string>
+
+    <!-- Terminal screen -->
+    <string name="config_terminal_title">终端</string>
+    <string name="config_terminal_clear">清空</string>
+    <string name="config_terminal_error">错误：%1$s</string>
+    <string name="config_terminal_unknown">未知</string>
+    <string name="config_terminal_empty_title">交互式终端</string>
+    <string name="config_terminal_empty_desc">在下方输入命令即可运行。</string>
+    <string name="config_terminal_exit_ok">✓ 退出码：%1$s</string>
+    <string name="config_terminal_exit_fail">✗ 退出码：%1$s</string>
+    <string name="config_terminal_running">运行中…</string>
+    <string name="config_terminal_placeholder">输入命令…</string>
+    <string name="config_terminal_run">运行</string>
+
+    <!-- MCP status row -->
+    <string name="config_mcp_row_stop">停止</string>
+    <string name="config_mcp_row_start">启动</string>
+    <string name="config_mcp_row_restart">重启</string>
+    <string name="config_mcp_row_remove">移除</string>
+
+    <!-- Channel status card -->
+    <string name="config_channel_card_connected">已连接</string>
+    <string name="config_channel_card_connecting">连接中…</string>
+    <string name="config_channel_card_disconnected">已断开</string>
+    <string name="config_channel_card_error">错误</string>
+    <string name="config_channel_card_settings">设置</string>
+
+    <!-- Piper download dialog -->
+    <string name="config_piper_downloading">正在下载语音模型</string>
+    <string name="config_piper_ready">准备就绪！</string>
+    <string name="config_piper_setting_up">正在设置 Piper 神经网络 TTS 引擎…</string>
+    <string name="config_piper_ready_desc">Piper 神经网络 TTS 已可使用。</string>
+
+    <!-- Setup wizard -->
+    <string name="config_wizard_next">下一步</string>
+    <string name="config_wizard_complete_setup">完成设置</string>
+</resources>

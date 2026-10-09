@@ -1,6 +1,7 @@
 package com.clawdroid.app.ui.settings
 
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.clawdroid.app.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.clawdroid.app.ui.components.GlassButton
@@ -51,9 +54,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-enum class ConfigFileType(val fileName: String, val label: String) {
-    AGENTS("AGENTS.md", "AGENTS.md — Agent Instructions"),
-    SOULD("SOULD.md", "SOULD.md — Agent Identity"),
+enum class ConfigFileType(val fileName: String, @StringRes val labelRes: Int) {
+    AGENTS("AGENTS.md", R.string.config_editor_label_agents),
+    SOULD("SOULD.md", R.string.config_editor_label_sould),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,10 +86,10 @@ fun ConfigEditorScreen(
         containerColor = DeepBlack,
         topBar = {
             TopAppBar(
-                title = { Text(fileType.label, color = SoftWhite, fontWeight = FontWeight.SemiBold) },
+                title = { Text(stringResource(fileType.labelRes, fileType.fileName), color = SoftWhite, fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = SoftWhite)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.config_back), tint = SoftWhite)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = DeepBlack),
@@ -97,7 +100,7 @@ fun ConfigEditorScreen(
             modifier = Modifier.fillMaxSize().background(DeepBlack).padding(padding).padding(16.dp),
         ) {
             if (loading) {
-                Text("Loading...", color = MutedGray)
+                Text(stringResource(R.string.config_loading), color = MutedGray)
             } else {
                 Column(
                     modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
@@ -106,13 +109,13 @@ fun ConfigEditorScreen(
                     GlassCard {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(
-                                "Edit ${fileType.fileName}",
+                                stringResource(R.string.config_editor_edit_file, fileType.fileName),
                                 color = EmberOrange,
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.titleMedium,
                             )
                             Text(
-                                "Changes are saved to the app's internal storage. The agent reads these files at startup.",
+                                stringResource(R.string.config_editor_storage_note),
                                 color = MutedGray,
                                 style = MaterialTheme.typography.bodySmall,
                             )
@@ -122,7 +125,7 @@ fun ConfigEditorScreen(
                     GlassTextField(
                         value = content,
                         onValueChange = { content = it },
-                        placeholder = "# Enter markdown content...",
+                        placeholder = stringResource(R.string.config_editor_placeholder),
                         singleLine = false,
                         maxLines = 40,
                         modifier = Modifier.fillMaxWidth(),
@@ -140,14 +143,14 @@ fun ConfigEditorScreen(
                                 file.writeText(content)
                             }
                             originalContent = content
-                            Toast.makeText(context, "${fileType.fileName} saved", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.config_file_saved_toast, fileType.fileName), Toast.LENGTH_SHORT).show()
                         }
                     },
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     enabled = content != originalContent,
                 ) {
                     Icon(Icons.Rounded.Save, contentDescription = null, tint = SoftWhite, modifier = Modifier.padding(end = 8.dp))
-                    Text("Save Changes", color = SoftWhite, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.config_editor_save_changes), color = SoftWhite, fontWeight = FontWeight.Bold)
                 }
             }
         }

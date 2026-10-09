@@ -16,8 +16,10 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clawdroid.app.R
 import com.clawdroid.app.ui.theme.ActivePurple
 import com.clawdroid.app.ui.theme.AstraPrimary
 import com.clawdroid.app.ui.theme.MutedGray
@@ -124,7 +126,7 @@ fun CustomProcessingLoader(
 
         Column(verticalArrangement = Arrangement.Center) {
             Text(
-                text = "Thinking…",
+                text = stringResource(R.string.chat_loader_thinking),
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.SemiBold,
                     color = SoftWhite,
@@ -132,7 +134,7 @@ fun CustomProcessingLoader(
                 )
             )
             Text(
-                text = "Analyzing query and planning actions",
+                text = stringResource(R.string.chat_loader_subtitle),
                 style = MaterialTheme.typography.bodySmall.copy(
                     color = MutedGray.copy(alpha = 0.7f)
                 )

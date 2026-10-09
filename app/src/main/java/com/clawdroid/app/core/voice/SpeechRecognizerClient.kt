@@ -9,7 +9,7 @@ import android.speech.SpeechRecognizer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.util.Locale
+import com.clawdroid.app.core.config.AppLanguage
 
 class SpeechRecognizerClient(private val context: Context) {
 
@@ -39,7 +39,8 @@ class SpeechRecognizerClient(private val context: Context) {
         recognizer = SpeechRecognizer.createSpeechRecognizer(context)
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            // EXTRA_LANGUAGE must be a BCP-47 string; a Locale object is silently ignored.
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, AppLanguage.current(context).toLanguageTag())
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
         }
 

@@ -53,6 +53,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.clawdroid.app.R
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -92,7 +94,7 @@ fun TerminalScreen(onBack: () -> Unit) {
             TopAppBar(
                 title = {
                     Text(
-                        "Terminal",
+                        stringResource(R.string.config_terminal_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                     )
@@ -101,7 +103,7 @@ fun TerminalScreen(onBack: () -> Unit) {
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.config_back),
                         )
                     }
                 },
@@ -109,7 +111,7 @@ fun TerminalScreen(onBack: () -> Unit) {
                     IconButton(onClick = { entries.clear() }) {
                         Icon(
                             Icons.Rounded.DeleteSweep,
-                            contentDescription = "Clear",
+                            contentDescription = stringResource(R.string.config_terminal_clear),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
@@ -167,7 +169,7 @@ fun TerminalScreen(onBack: () -> Unit) {
                         } else {
                             TermEntry(
                                 id = start, command = cmd,
-                                output = "Error: ${result.exceptionOrNull()?.message ?: "Unknown"}",
+                                output = context.getString(R.string.config_terminal_error, result.exceptionOrNull()?.message ?: context.getString(R.string.config_terminal_unknown)),
                                 exitCode = -1, timestamp = start, duration = elapsed,
                             )
                         }
@@ -196,14 +198,14 @@ private fun EmptyTerminal() {
             Text("🐚", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(Dimens.md))
             Text(
-                "Interactive Terminal",
+                stringResource(R.string.config_terminal_empty_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Spacer(modifier = Modifier.height(Dimens.xs))
             Text(
-                "Type a command below to run it.",
+                stringResource(R.string.config_terminal_empty_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -292,7 +294,7 @@ private fun TermOutputCard(entry: TermEntry) {
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
-                text = if (success) "✓ Exit: ${entry.exitCode}" else "✗ Exit: ${entry.exitCode}",
+                text = if (success) stringResource(R.string.config_terminal_exit_ok, entry.exitCode.toString()) else stringResource(R.string.config_terminal_exit_fail, entry.exitCode.toString()),
                 color = if (success) MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                 else MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
                 fontSize = 11.sp,
@@ -338,7 +340,7 @@ private fun TermInputBar(
                 modifier = Modifier.weight(1f),
                 placeholder = {
                     Text(
-                        if (isRunning) "Running..." else "Type a command...",
+                        if (isRunning) stringResource(R.string.config_terminal_running) else stringResource(R.string.config_terminal_placeholder),
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                     )
                 },
@@ -377,7 +379,7 @@ private fun TermInputBar(
             ) {
                 Icon(
                     Icons.Rounded.PlayArrow,
-                    contentDescription = "Run",
+                    contentDescription = stringResource(R.string.config_terminal_run),
                     tint = MaterialTheme.colorScheme.primary.copy(alpha = btnAlpha),
                     modifier = Modifier.size(20.dp),
                 )

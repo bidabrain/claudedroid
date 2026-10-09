@@ -21,7 +21,8 @@ class OpenAIRealtimeClient {
             .takeIf { it.isNotBlank() }
             ?: AppConfigManager.openaiTtsApiKey
             .takeIf { it.isNotBlank() }
-            ?: AppConfigManager.apiKey
+            // Never fall back to the Claude key: it would be sent to api.openai.com.
+            ?: ""
 
     companion object {
         private const val TAG = "OpenAIRealtimeClient"
@@ -106,7 +107,7 @@ class OpenAIRealtimeClient {
 }
 
 private fun defaultInstructions(): String {
-    val name = AppConfigManager.agentName.ifBlank { "ClawDroid" }
+    val name = AppConfigManager.agentName.ifBlank { "ClaudeDroid" }
     val purpose = AppConfigManager.agentPurpose.ifBlank { "help the user on Android" }
-    return "You are $name, ClawDroid's realtime voice agent. Keep replies brief, natural, and useful. Your purpose is to $purpose."
+    return "You are $name, ClaudeDroid's realtime voice agent. Keep replies brief, natural, and useful. Your purpose is to $purpose."
 }

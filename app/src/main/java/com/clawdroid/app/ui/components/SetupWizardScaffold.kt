@@ -42,6 +42,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.res.stringResource
+import com.clawdroid.app.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.clawdroid.app.ui.theme.DeepBlack
@@ -81,7 +83,7 @@ fun SetupWizardScaffold(
                     IconButton(onClick = {
                         if (currentStep > 0) onBack() else onClose()
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = SoftWhite)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.config_back), tint = SoftWhite)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = DeepBlack),
@@ -201,7 +203,7 @@ private fun StepProgressBar(
 fun WizardActionRow(
     onBack: () -> Unit,
     onNext: () -> Unit,
-    nextLabel: String = "Next",
+    nextLabel: String = stringResource(R.string.config_wizard_next),
     canGoBack: Boolean = true,
     canGoNext: Boolean = true,
     isLastStep: Boolean = false,
@@ -215,7 +217,7 @@ fun WizardActionRow(
                 onClick = onBack,
                 modifier = Modifier.weight(1f),
             ) {
-                Text("Back", color = SoftWhite, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.config_back), color = SoftWhite, fontWeight = FontWeight.Bold)
             }
         } else {
             Spacer(modifier = Modifier.weight(1f))
@@ -229,7 +231,7 @@ fun WizardActionRow(
                 modifier = Modifier.weight(1f),
             ) {
                 Text(
-                    if (isLastStep) "Complete Setup" else nextLabel,
+                    if (isLastStep) stringResource(R.string.config_wizard_complete_setup) else nextLabel,
                     color = SoftWhite,
                     fontWeight = FontWeight.Bold,
                 )

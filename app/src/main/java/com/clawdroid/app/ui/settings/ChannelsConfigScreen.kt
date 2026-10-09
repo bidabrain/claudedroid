@@ -27,15 +27,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import com.clawdroid.app.R
 import com.clawdroid.app.core.channel.ChannelQrGenerator
 
 data class ChannelIntegration(
     val id: String,
     val name: String,
     val icon: String,  // Emoji or icon name
-    val description: String,
+    @StringRes val descriptionRes: Int,
     val isConnected: Boolean,
-    val authStatus: String = if (isConnected) "Connected" else "Not connected"
+    @StringRes val authStatusRes: Int = if (isConnected) R.string.config_channels_status_connected else R.string.config_channels_status_not_connected
 )
 
 /**
@@ -52,44 +55,44 @@ fun ChannelsConfigScreen(
             "whatsapp",
             "WhatsApp",
             "💬",
-            "Receive messages and respond via WhatsApp using WaCLI",
+            R.string.config_channels_whatsapp_desc,
             isConnected = false
         ),
         ChannelIntegration(
             "telegram",
             "Telegram",
             "📱",
-            "Receive Telegram messages and send responses",
+            R.string.config_channels_telegram_desc,
             isConnected = true,
-            "Connected as @clawdroid_bot"
+            R.string.config_channels_telegram_connected_as
         ),
         ChannelIntegration(
             "slack",
             "Slack",
             "💼",
-            "Integrate with Slack workspace for team collaboration",
+            R.string.config_channels_slack_desc,
             isConnected = true,
-            "Connected to Workspace"
+            R.string.config_channels_slack_connected
         ),
         ChannelIntegration(
             "discord",
             "Discord",
             "🎮",
-            "Connect to Discord server for community interaction",
+            R.string.config_channels_discord_desc,
             isConnected = false
         ),
         ChannelIntegration(
             "email",
             "Email",
             "📧",
-            "Send and receive emails through configured account",
+            R.string.config_channels_email_desc,
             isConnected = false
         ),
         ChannelIntegration(
             "webhook",
             "Webhooks",
             "🔌",
-            "Generic webhook for any HTTP service integration",
+            R.string.config_channels_webhook_desc,
             isConnected = false
         )
     )) }
@@ -99,10 +102,10 @@ fun ChannelsConfigScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Connected Channels") },
+                title = { Text(stringResource(R.string.config_channels_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.config_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -123,7 +126,7 @@ fun ChannelsConfigScreen(
             // Connected channels header
             item {
                 Text(
-                    "Connected Channels",
+                    stringResource(R.string.config_channels_connected_header),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -141,7 +144,7 @@ fun ChannelsConfigScreen(
             item {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    "Available Channels",
+                    stringResource(R.string.config_channels_available_header),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -167,7 +170,7 @@ fun ChannelsConfigScreen(
                     if (it.id == selectedChannel!!.id)
                         it.copy(
                             isConnected = true,
-                            authStatus = newStatus
+                            authStatusRes = newStatus
                         )
                     else it
                 }
@@ -178,7 +181,7 @@ fun ChannelsConfigScreen(
                     if (it.id == selectedChannel!!.id)
                         it.copy(
                             isConnected = false,
-                            authStatus = "Not connected"
+                            authStatusRes = R.string.config_channels_status_not_connected
                         )
                     else it
                 }
@@ -237,12 +240,12 @@ private fun ChannelCard(
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
-                        channel.description,
+                        stringResource(channel.descriptionRes),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        channel.authStatus,
+                        stringResource(channel.authStatusRes),
                         style = MaterialTheme.typography.labelSmall,
                         color = if (channel.isConnected)
                             Color(0xFF4CAF50)
@@ -270,7 +273,7 @@ private fun ChannelCard(
 private fun ChannelConfigDialog(
     channel: ChannelIntegration,
     onDismiss: () -> Unit,
-    onConnect: (String) -> Unit,
+    onConnect: (Int) -> Unit,
     onDisconnect: () -> Unit
 ) {
     var showQrCode by remember { mutableStateOf(false) }
@@ -278,7 +281,7 @@ private fun ChannelConfigDialog(
 
     if (showQrCode && qrBitmap != null) {
         QrCodeDialog(
-            title = "${channel.icon} ${channel.name} - QR Code",
+            title = stringResource(R.string.config_channels_qr_title, channel.icon, channel.name),
             qrBitmap = qrBitmap!!,
             onDismiss = { showQrCode = false }
         )
@@ -294,7 +297,7 @@ private fun ChannelConfigDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    channel.description,
+                    stringResource(channel.descriptionRes),
                     style = MaterialTheme.typography.bodyMedium
                 )
 
@@ -339,17 +342,17 @@ private fun ChannelConfigDialog(
                         containerColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("Disconnect")
+                    Text(stringResource(R.string.config_channels_disconnect))
                 }
             } else {
-                Button(onClick = { onConnect("Connected") }) {
-                    Text("Connect")
+                Button(onClick = { onConnect(R.string.config_channels_status_connected) }) {
+                    Text(stringResource(R.string.config_channels_connect))
                 }
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.config_cancel))
             }
         }
     )
@@ -359,12 +362,12 @@ private fun ChannelConfigDialog(
 private fun WhatsAppConfig(onShowQr: () -> Unit = {}) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            "Setup Instructions:",
+            stringResource(R.string.config_channels_setup_instructions),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold
         )
         Text(
-            "1. Install WaCLI\n2. Scan QR code to authenticate\n3. Grant permissions",
+            stringResource(R.string.config_channels_whatsapp_steps),
             style = MaterialTheme.typography.bodySmall
         )
         Button(
@@ -373,7 +376,7 @@ private fun WhatsAppConfig(onShowQr: () -> Unit = {}) {
         ) {
             Icon(Icons.Filled.QrCode, contentDescription = null, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Show QR Code")
+            Text(stringResource(R.string.config_channels_show_qr))
         }
     }
 }
@@ -382,7 +385,7 @@ private fun WhatsAppConfig(onShowQr: () -> Unit = {}) {
 private fun TelegramConfig(isConnected: Boolean, onShowQr: () -> Unit = {}) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (isConnected) {
-            Text("Connected as @clawdroid_bot", style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(R.string.config_channels_telegram_connected_as), style = MaterialTheme.typography.bodySmall)
         }
         Button(
             onClick = onShowQr,
@@ -390,12 +393,12 @@ private fun TelegramConfig(isConnected: Boolean, onShowQr: () -> Unit = {}) {
         ) {
             Icon(Icons.Filled.QrCode, contentDescription = null, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Show QR Code")
+            Text(stringResource(R.string.config_channels_show_qr))
         }
         TextField(
             value = "",
             onValueChange = {},
-            label = { Text("Bot Token") },
+            label = { Text(stringResource(R.string.config_channels_bot_token)) },
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -405,13 +408,13 @@ private fun TelegramConfig(isConnected: Boolean, onShowQr: () -> Unit = {}) {
 private fun SlackConfig(isConnected: Boolean) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (isConnected) {
-            Text("Connected to workspace", style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(R.string.config_channels_slack_connected_lower), style = MaterialTheme.typography.bodySmall)
         }
         Button(
             onClick = { /* OAuth flow */ },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Authorize with Slack")
+            Text(stringResource(R.string.config_channels_authorize_slack))
         }
     }
 }
@@ -425,18 +428,18 @@ private fun DiscordConfig(isConnected: Boolean, onShowQr: () -> Unit = {}) {
         ) {
             Icon(Icons.Filled.QrCode, contentDescription = null, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Show QR Code")
+            Text(stringResource(R.string.config_channels_show_qr))
         }
         TextField(
             value = "",
             onValueChange = {},
-            label = { Text("Bot Token") },
+            label = { Text(stringResource(R.string.config_channels_bot_token)) },
             modifier = Modifier.fillMaxWidth()
         )
         TextField(
             value = "",
             onValueChange = {},
-            label = { Text("Server ID (Guild ID)") },
+            label = { Text(stringResource(R.string.config_channels_server_id)) },
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -448,13 +451,13 @@ private fun EmailConfig(isConnected: Boolean) {
         TextField(
             value = "",
             onValueChange = {},
-            label = { Text("Email Address") },
+            label = { Text(stringResource(R.string.config_channels_email_address)) },
             modifier = Modifier.fillMaxWidth()
         )
         TextField(
             value = "",
             onValueChange = {},
-            label = { Text("App Password / Token") },
+            label = { Text(stringResource(R.string.config_channels_app_password)) },
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -469,16 +472,16 @@ private fun WebhookConfig(isConnected: Boolean, onShowQr: () -> Unit = {}) {
         ) {
             Icon(Icons.Filled.QrCode, contentDescription = null, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Show QR Code")
+            Text(stringResource(R.string.config_channels_show_qr))
         }
         TextField(
             value = "",
             onValueChange = {},
-            label = { Text("Webhook URL") },
+            label = { Text(stringResource(R.string.config_channels_webhook_url)) },
             modifier = Modifier.fillMaxWidth()
         )
         Text(
-            "Your webhook endpoint:\nhttps://clawdroid.local/webhook",
+            stringResource(R.string.config_channels_webhook_endpoint, "https://clawdroid.local/webhook"),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -502,7 +505,7 @@ private fun QrCodeDialog(
             ) {
                 Image(
                     bitmap = qrBitmap.asImageBitmap(),
-                    contentDescription = "QR Code",
+                    contentDescription = stringResource(R.string.config_channels_qr_code),
                     modifier = Modifier
                         .size(280.dp)
                         .clip(RoundedCornerShape(8.dp))
@@ -510,7 +513,7 @@ private fun QrCodeDialog(
                     contentScale = ContentScale.Fit
                 )
                 Text(
-                    "Scan this QR code with your mobile device to authenticate",
+                    stringResource(R.string.config_channels_qr_scan_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -518,7 +521,7 @@ private fun QrCodeDialog(
         },
         confirmButton = {
             Button(onClick = onDismiss) {
-                Text("Done")
+                Text(stringResource(R.string.config_done))
             }
         }
     )

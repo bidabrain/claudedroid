@@ -81,6 +81,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.annotation.StringRes
+import com.clawdroid.app.R
 import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.launch
 import androidx.compose.ui.text.input.KeyboardType
@@ -127,33 +130,33 @@ fun AudioConfigScreen(onBack: () -> Unit) {
     var emojiTone by remember { mutableStateOf(AppConfigManager.emojiToneEnabled) }
     var piperEnabled by remember { mutableStateOf(AppConfigManager.mcpEnabled) }
 
-    ConfigScaffold("Audio & Voice", onBack) {
+    ConfigScaffold(stringResource(R.string.mcp_audio_title), Icons.Outlined.Headphones, onBack) {
         InfoCard(
-            title = "Voice Runtime",
-            body = "Pick the spoken voice engine, tune speed, and control how ClawDroid talks while working. Piper provides on-device neural TTS."
+            title = stringResource(R.string.mcp_voice_runtime),
+            body = stringResource(R.string.mcp_voice_runtime_body)
         )
 
         GlassCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionTitle("TTS Engine")
+                SectionTitle(stringResource(R.string.mcp_tts_engine))
 
-                ConfigChoice("Android TTS", "Offline system voice. Reliable fallback with device language support.", ttsEngine == "device") { ttsEngine = "device" }
-                ConfigChoice("OpenAI TTS", "Cloud voices: alloy, echo, fable, onyx, nova, shimmer. 6 distinct personalities.", ttsEngine == "openai") { ttsEngine = "openai" }
-                ConfigChoice("ElevenLabs", "Premium neural voices: Rachel, Domi, Josh, Bella. Ultra-realistic.", ttsEngine == "elevenlabs") { ttsEngine = "elevenlabs" }
-                ConfigChoice("Deepgram", "Fast cloud TTS: Asteria, Luna, Orion, Zeus. Low latency.", ttsEngine == "deepgram") { ttsEngine = "deepgram" }
+                ConfigChoice("Android TTS", stringResource(R.string.mcp_tts_android_desc), ttsEngine == "device") { ttsEngine = "device" }
+                ConfigChoice("OpenAI TTS", stringResource(R.string.mcp_tts_openai_desc), ttsEngine == "openai") { ttsEngine = "openai" }
+                ConfigChoice("ElevenLabs", stringResource(R.string.mcp_tts_elevenlabs_desc), ttsEngine == "elevenlabs") { ttsEngine = "elevenlabs" }
+                ConfigChoice("Deepgram", stringResource(R.string.mcp_tts_deepgram_desc), ttsEngine == "deepgram") { ttsEngine = "deepgram" }
             }
         }
 
         GlassCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionTitle("Voice Details")
+                SectionTitle(stringResource(R.string.mcp_voice_details))
                 GlassTextField(
                     value = ttsVoice,
                     onValueChange = { ttsVoice = it },
-                    placeholder = "Voice id, e.g. onyx, nova, rachel, asteria",
+                    placeholder = stringResource(R.string.mcp_voice_id_placeholder),
                 )
                 Text(
-                    "Speech Speed: ${String.format("%.1fx", ttsSpeed)}",
+                    stringResource(R.string.mcp_speech_speed, String.format("%.1fx", ttsSpeed)),
                     color = EmberOrange,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -164,19 +167,19 @@ fun AudioConfigScreen(onBack: () -> Unit) {
                     steps = 15,
                     colors = configSliderColors(),
                 )
-                ConfigSwitch("Dynamic Thinking", "Task-aware thinking phrases while processing in voice mode.", dynamicThinking) { dynamicThinking = it }
-                ConfigSwitch("Emoji Tone", "Strip emojis from speech and convert to emotional tone hints instead.", emojiTone) { emojiTone = it }
+                ConfigSwitch(stringResource(R.string.mcp_dynamic_thinking), stringResource(R.string.mcp_dynamic_thinking_desc), dynamicThinking) { dynamicThinking = it }
+                ConfigSwitch(stringResource(R.string.mcp_emoji_tone), stringResource(R.string.mcp_emoji_tone_desc), emojiTone) { emojiTone = it }
             }
         }
 
         GlassCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionTitle("Cloud TTS API Keys")
-                SecretField("OpenAI TTS API key", openaiKey) { openaiKey = it }
-                SecretField("ElevenLabs API key", elevenlabsKey) { elevenlabsKey = it }
-                SecretField("Deepgram API key", deepgramKey) { deepgramKey = it }
+                SectionTitle(stringResource(R.string.mcp_cloud_tts_keys))
+                SecretField(stringResource(R.string.mcp_openai_tts_key), openaiKey) { openaiKey = it }
+                SecretField(stringResource(R.string.mcp_elevenlabs_key), elevenlabsKey) { elevenlabsKey = it }
+                SecretField(stringResource(R.string.mcp_deepgram_key), deepgramKey) { deepgramKey = it }
                 Text(
-                    "Keys are stored locally in EncryptedSharedPreferences.",
+                    stringResource(R.string.mcp_keys_stored_locally),
                     color = MutedGray,
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -232,7 +235,7 @@ fun McpConfigScreen(onBack: () -> Unit) {
         AppConfigManager.mcpServerList = serverList
     }
 
-    fun toggleConnector(key: String, title: String, command: String, args: String = "") {
+    fun toggleConnector(key: String, @StringRes titleRes: Int, command: String, args: String = "") {
         val current = parsedServers.toMutableList()
         val existing = current.find { it.name == key }
         if (existing != null) {
@@ -243,10 +246,10 @@ fun McpConfigScreen(onBack: () -> Unit) {
         saveServerList(current)
     }
 
-    ConfigScaffold("Connectors", onBack) {
+    ConfigScaffold(stringResource(R.string.mcp_connectors_title), Icons.Outlined.Link, onBack) {
         InfoCard(
-            title = "MCP Connectors",
-            body = "Connectors give the agent access to external tools, databases, and services. Toggle each connector on to enable it."
+            title = stringResource(R.string.mcp_mcp_connectors),
+            body = stringResource(R.string.mcp_connectors_body)
         )
 
         GlassCard {
@@ -257,8 +260,8 @@ fun McpConfigScreen(onBack: () -> Unit) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("MCP Runtime", color = SoftWhite, fontWeight = FontWeight.Bold)
-                        Text("Master switch for all connectors", color = MutedGray, style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.mcp_mcp_runtime), color = SoftWhite, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.mcp_master_switch_desc), color = MutedGray, style = MaterialTheme.typography.bodySmall)
                     }
                     Switch(
                         checked = enabled,
@@ -272,24 +275,24 @@ fun McpConfigScreen(onBack: () -> Unit) {
                     )
                 }
                 AnimatedVisibility(visible = enabled) {
-                    ConfigSwitch("Sandbox Only", "Restrict connectors to run inside the sandbox.", sandboxOnly) { sandboxOnly = it }
+                    ConfigSwitch(stringResource(R.string.mcp_sandbox_only), stringResource(R.string.mcp_sandbox_only_desc), sandboxOnly) { sandboxOnly = it }
                 }
             }
         }
 
         val connectors = listOf(
-            ConnectorDef("filesystem", "Filesystem", Icons.Outlined.Folder, "npx @modelcontextprotocol/server-filesystem", "/home", "Read, write, and manage files on the local filesystem."),
-            ConnectorDef("github", "GitHub", Icons.Outlined.Code, "python -m mcp_github", "", "Access repositories, issues, PRs, and code review."),
-            ConnectorDef("browser", "Browser", Icons.Outlined.Language, "npx @anthropic/mcp-browser", "", "Headless browser for web scraping and automation."),
-            ConnectorDef("sqlite", "SQLite", Icons.Outlined.Storage, "npx @anthropic/mcp-database-server sqlite", "", "Query and manage SQLite databases."),
-            ConnectorDef("calendar", "Calendar", Icons.Outlined.CalendarMonth, "npx @anthropic/mcp-google-calendar", "", "Read and create calendar events."),
-            ConnectorDef("email", "Email", Icons.Outlined.MailOutline, "npx @anthropic/mcp-email", "", "Send and read emails via MCP."),
-            ConnectorDef("web-search", "Web Search", Icons.Outlined.Search, "python -m mcp_web_search", "", "Search the web and return results."),
+            ConnectorDef("filesystem", R.string.mcp_connector_filesystem, Icons.Outlined.Folder, "npx @modelcontextprotocol/server-filesystem", "/home", R.string.mcp_connector_filesystem_desc),
+            ConnectorDef("github", R.string.mcp_connector_github, Icons.Outlined.Code, "python -m mcp_github", "", R.string.mcp_connector_github_desc),
+            ConnectorDef("browser", R.string.mcp_connector_browser, Icons.Outlined.Language, "npx @anthropic/mcp-browser", "", R.string.mcp_connector_browser_desc),
+            ConnectorDef("sqlite", R.string.mcp_connector_sqlite, Icons.Outlined.Storage, "npx @anthropic/mcp-database-server sqlite", "", R.string.mcp_connector_sqlite_desc),
+            ConnectorDef("calendar", R.string.mcp_connector_calendar, Icons.Outlined.CalendarMonth, "npx @anthropic/mcp-google-calendar", "", R.string.mcp_connector_calendar_desc),
+            ConnectorDef("email", R.string.mcp_connector_email, Icons.Outlined.MailOutline, "npx @anthropic/mcp-email", "", R.string.mcp_connector_email_desc),
+            ConnectorDef("web-search", R.string.mcp_connector_web_search, Icons.Outlined.Search, "python -m mcp_web_search", "", R.string.mcp_connector_web_search_desc),
         )
 
         GlassCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionTitle("Available Connectors")
+                SectionTitle(stringResource(R.string.mcp_available_connectors))
 
                 connectors.forEach { def ->
                     val isConnected = parsedServers.any { it.name == def.key }
@@ -310,12 +313,12 @@ fun McpConfigScreen(onBack: () -> Unit) {
                             Icon(def.icon, contentDescription = null, tint = if (isConnected) NeonCyan else MutedGray, modifier = Modifier.size(22.dp))
                             Spacer(modifier = Modifier.width(10.dp))
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(def.title, color = SoftWhite, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                                Text(def.description, color = MutedGray, fontSize = 11.sp)
+                                Text(stringResource(def.titleRes), color = SoftWhite, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                Text(stringResource(def.descriptionRes), color = MutedGray, fontSize = 11.sp)
                             }
                             Switch(
                                 checked = isConnected,
-                                onCheckedChange = { toggleConnector(def.key, def.title, def.command, def.args) },
+                                onCheckedChange = { toggleConnector(def.key, def.titleRes, def.command, def.args) },
                                 colors = SwitchDefaults.colors(
                                     checkedThumbColor = NeonCyan,
                                     checkedTrackColor = NeonCyan.copy(alpha = 0.4f),
@@ -334,7 +337,7 @@ fun McpConfigScreen(onBack: () -> Unit) {
                                         .background(NeonCyan)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Active", color = NeonCyan, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                                Text(stringResource(R.string.mcp_active), color = NeonCyan, fontSize = 11.sp, fontWeight = FontWeight.Medium)
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Text("\"${def.command} ${def.args}\"", color = MutedGray, fontSize = 10.sp)
                             }
@@ -354,11 +357,11 @@ fun McpConfigScreen(onBack: () -> Unit) {
 
 private data class ConnectorDef(
     val key: String,
-    val title: String,
+    @StringRes val titleRes: Int,
     val icon: ImageVector,
     val command: String,
     val args: String,
-    val description: String,
+    @StringRes val descriptionRes: Int,
 )
 
 @Composable
@@ -366,40 +369,40 @@ fun SkillsConfigScreen(onBack: () -> Unit) {
     var storeEnabled by remember { mutableStateOf(AppConfigManager.skillStoreEnabled) }
     var skillUrls by remember { mutableStateOf(AppConfigManager.mcpServers) }
 
-    ConfigScaffold("Skills", onBack) {
+    ConfigScaffold(stringResource(R.string.mcp_skills_title), Icons.Outlined.Extension, onBack) {
         InfoCard(
-            title = "Skill System",
-            body = "Skills add specialist behavior through prompt files, scripts, and installable packages. Community skills are available from skills.sh. Local skills live in ~/skills/*.md or ~/skills/*.sh."
+            title = stringResource(R.string.mcp_skill_system),
+            body = stringResource(R.string.mcp_skill_system_body)
         )
 
         GlassCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionTitle("Skill Sources")
-                ConfigSwitch("Enable Skills Store", "Show skills.sh as the community skill source for one-command installs.", storeEnabled) { storeEnabled = it }
+                SectionTitle(stringResource(R.string.mcp_skill_sources))
+                ConfigSwitch(stringResource(R.string.mcp_enable_skills_store), stringResource(R.string.mcp_enable_skills_store_desc), storeEnabled) { storeEnabled = it }
 
                 Spacer(modifier = Modifier.height(8.dp))
-                DetailRow("Community Registry", "https://skills.sh")
-                DetailRow("Local Prompts", "~/skills/*.md")
-                DetailRow("Script Skills", "~/skills/*.sh")
-                DetailRow("Install Command", "skills.sh install <skill-name>")
+                DetailRow(stringResource(R.string.mcp_community_registry), "https://skills.sh")
+                DetailRow(stringResource(R.string.mcp_local_prompts), "~/skills/*.md")
+                DetailRow(stringResource(R.string.mcp_script_skills), "~/skills/*.sh")
+                DetailRow(stringResource(R.string.mcp_install_command), "skills.sh install <skill-name>")
             }
         }
 
         GlassCard {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                SectionTitle("Available Skills")
-                SkillCard("Web Researcher", "Deep research with citations and source comparison.", Icons.Outlined.Cloud)
-                SkillCard("Code Reviewer", "Review patches, run tests, check project conventions.", Icons.Outlined.Cloud)
-                SkillCard("OpenClaws WhatsApp", "WhatsApp automation skill for channel workflows.", Icons.Outlined.Cloud)
-                SkillCard("Workflow Builder", "Create recurring automations from natural language.", Icons.Outlined.Cloud)
-                SkillCard("Finance Tracker", "Categorize expenses, forecast budget.", Icons.Outlined.Cloud)
-                SkillCard("Study Buddy", "Generate flashcards, quiz, explain concepts.", Icons.Outlined.Cloud)
+                SectionTitle(stringResource(R.string.mcp_available_skills))
+                SkillCard(stringResource(R.string.mcp_skill_web_researcher), stringResource(R.string.mcp_skill_web_researcher_desc), Icons.Outlined.Cloud)
+                SkillCard(stringResource(R.string.mcp_skill_code_reviewer), stringResource(R.string.mcp_skill_code_reviewer_desc), Icons.Outlined.Cloud)
+                SkillCard("ClaudeDroid WhatsApp", stringResource(R.string.mcp_skill_whatsapp_desc), Icons.Outlined.Cloud)
+                SkillCard(stringResource(R.string.mcp_skill_workflow_builder), stringResource(R.string.mcp_skill_workflow_builder_desc), Icons.Outlined.Cloud)
+                SkillCard(stringResource(R.string.mcp_skill_finance_tracker), stringResource(R.string.mcp_skill_finance_tracker_desc), Icons.Outlined.Cloud)
+                SkillCard(stringResource(R.string.mcp_skill_study_buddy), stringResource(R.string.mcp_skill_study_buddy_desc), Icons.Outlined.Cloud)
             }
         }
 
         GlassCard {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                SectionTitle("Custom Skill URLs")
+                SectionTitle(stringResource(R.string.mcp_custom_skill_urls))
                 GlassTextField(
                     value = skillUrls,
                     onValueChange = { skillUrls = it },
@@ -428,27 +431,27 @@ fun AutomationsConfigScreen(onBack: () -> Unit) {
         ActivityResultContracts.RequestMultiplePermissions(),
     ) {}
 
-    ConfigScaffold("Automations", onBack) {
+    ConfigScaffold(stringResource(R.string.mcp_automations_title), Icons.Outlined.CalendarMonth, onBack) {
         InfoCard(
-            title = "Background Automation",
-            body = "Control recurring heartbeat scans, foreground service behavior, approval modes, and overall agent autonomy in the background.",
+            title = stringResource(R.string.mcp_background_automation),
+            body = stringResource(R.string.mcp_background_automation_body),
         )
 
         GlassCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionTitle("Heartbeat Scanner")
-                ConfigSwitch("Autonomous Heartbeat", "Scan heartbeat.md task lists on a recurring schedule. Agent processes pending tasks autonomously.", heartbeatEnabled) { heartbeatEnabled = it }
+                SectionTitle(stringResource(R.string.mcp_heartbeat_scanner))
+                ConfigSwitch(stringResource(R.string.mcp_autonomous_heartbeat), stringResource(R.string.mcp_autonomous_heartbeat_desc), heartbeatEnabled) { heartbeatEnabled = it }
 
                 AnimatedVisibility(visible = heartbeatEnabled) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        SectionTitle("Cron Presets")
-                        ConfigChoice("Every 15 min", "Fast checks for active projects and urgent reminders.", interval == 15) { interval = 15 }
-                        ConfigChoice("Every 30 min", "Balanced recurring checks without too much background work.", interval == 30) { interval = 30 }
-                        ConfigChoice("Hourly", "Lightweight monitoring for normal daily use.", interval == 60) { interval = 60 }
-                        ConfigChoice("Every 2 hours", "Low-touch background automation.", interval == 120) { interval = 120 }
+                        SectionTitle(stringResource(R.string.mcp_cron_presets))
+                        ConfigChoice(stringResource(R.string.mcp_every_15_min), stringResource(R.string.mcp_every_15_min_desc), interval == 15) { interval = 15 }
+                        ConfigChoice(stringResource(R.string.mcp_every_30_min), stringResource(R.string.mcp_every_30_min_desc), interval == 30) { interval = 30 }
+                        ConfigChoice(stringResource(R.string.mcp_hourly), stringResource(R.string.mcp_hourly_desc), interval == 60) { interval = 60 }
+                        ConfigChoice(stringResource(R.string.mcp_every_2_hours), stringResource(R.string.mcp_every_2_hours_desc), interval == 120) { interval = 120 }
 
                         Text(
-                            "Scan Interval: ${interval}m",
+                            stringResource(R.string.mcp_scan_interval, interval),
                             color = EmberOrange,
                             fontWeight = FontWeight.SemiBold,
                         )
@@ -459,8 +462,8 @@ fun AutomationsConfigScreen(onBack: () -> Unit) {
                             steps = 7,
                             colors = configSliderColors(),
                         )
-                        DetailRow("Task File", "heartbeat.md in project sandbox root")
-                        DetailRow("Scheduler", "WorkManager (survives app restart)")
+                        DetailRow(stringResource(R.string.mcp_task_file), stringResource(R.string.mcp_task_file_value))
+                        DetailRow(stringResource(R.string.mcp_scheduler), stringResource(R.string.mcp_scheduler_value))
                     }
                 }
             }
@@ -468,21 +471,21 @@ fun AutomationsConfigScreen(onBack: () -> Unit) {
 
         GlassCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionTitle("Approval Mode")
+                SectionTitle(stringResource(R.string.mcp_approval_mode))
                 Text(
-                    "Controls when the agent needs your explicit approval before acting.",
+                    stringResource(R.string.mcp_approval_mode_desc),
                     color = MutedGray,
                     style = MaterialTheme.typography.bodySmall,
                 )
-                ConfigChoice("Default", "Sandbox full auto. Ask before connected services.", approvalMode == "default") { approvalMode = "default" }
-                ConfigChoice("Trusted", "Sandbox and connected services run with minimal friction.", approvalMode == "trusted") { approvalMode = "trusted" }
-                ConfigChoice("Cautious", "Ask for installs, destructive work, and connected services.", approvalMode == "cautious") { approvalMode = "cautious" }
+                ConfigChoice(stringResource(R.string.mcp_approval_default), stringResource(R.string.mcp_approval_default_desc_auto), approvalMode == "default") { approvalMode = "default" }
+                ConfigChoice(stringResource(R.string.mcp_approval_trusted), stringResource(R.string.mcp_approval_trusted_desc_auto), approvalMode == "trusted") { approvalMode = "trusted" }
+                ConfigChoice(stringResource(R.string.mcp_approval_cautious), stringResource(R.string.mcp_approval_cautious_desc_auto), approvalMode == "cautious") { approvalMode = "cautious" }
             }
         }
 
         GlassCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                ConfigSwitch("Ultra Agent Mode", "Foreground service + extra device permissions. Agent runs 24/7, listening on channels and processing heartbeats.", ultraAgent) {
+                ConfigSwitch(stringResource(R.string.mcp_ultra_agent_mode), stringResource(R.string.mcp_ultra_agent_mode_desc), ultraAgent) {
                     ultraAgent = it
                     if (it) {
                         val permissions = mutableListOf(Manifest.permission.RECORD_AUDIO)
@@ -503,7 +506,7 @@ fun AutomationsConfigScreen(onBack: () -> Unit) {
                     }
                 }
                 Text(
-                    "Use Cautious approval mode if you want installs and risky actions to pause for confirmation.",
+                    stringResource(R.string.mcp_cautious_hint),
                     color = MutedGray,
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -546,41 +549,41 @@ fun AgentConfigScreen(onBack: () -> Unit) {
     var skillMd by remember { mutableStateOf(AppConfigManager.skillMd) }
     var claudeMd by remember { mutableStateOf(AppConfigManager.claudeMd) }
 
-    ConfigScaffold("Agent Configuration", onBack) {
+    ConfigScaffold(stringResource(R.string.mcp_agent_config_title), Icons.Outlined.Security, onBack) {
         InfoCard(
-            title = "Agent Calibration",
-            body = "Customize how your agent behaves, what it knows about you, and how much autonomy it has. These settings are injected into the system prompt.",
+            title = stringResource(R.string.mcp_agent_calibration),
+            body = stringResource(R.string.mcp_agent_calibration_body),
         )
 
         GlassCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionTitle("Identity")
+                SectionTitle(stringResource(R.string.mcp_identity))
                 GlassTextField(
                     value = agentName,
                     onValueChange = { agentName = it },
-                    placeholder = "Agent name (e.g. Nova, Aria, Cortex)",
+                    placeholder = stringResource(R.string.mcp_agent_name_placeholder),
                 )
                 GlassTextField(
                     value = agentPersonality,
                     onValueChange = { agentPersonality = it },
-                    placeholder = "Personality (e.g. calm senior engineer, cyberpunk hacker)",
+                    placeholder = stringResource(R.string.mcp_personality_placeholder),
                 )
                 GlassTextField(
                     value = agentPurpose,
                     onValueChange = { agentPurpose = it },
-                    placeholder = "Primary purpose (e.g. System controls & diagnostics)",
+                    placeholder = stringResource(R.string.mcp_purpose_placeholder),
                 )
             }
         }
 
         GlassCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionTitle("Prompt Instructions (Markdown)")
+                SectionTitle(stringResource(R.string.mcp_prompt_instructions))
                 
                 GlassTextField(
                     value = agentsMd,
                     onValueChange = { agentsMd = it },
-                    placeholder = "AGENTS.md - High level routing and agent selection logic",
+                    placeholder = stringResource(R.string.mcp_agents_md_placeholder),
                     singleLine = false,
                     maxLines = 4,
                 )
@@ -588,7 +591,7 @@ fun AgentConfigScreen(onBack: () -> Unit) {
                 GlassTextField(
                     value = soulMd,
                     onValueChange = { soulMd = it },
-                    placeholder = "SOUL.md - Deep personality traits, ethics, and style guidelines",
+                    placeholder = stringResource(R.string.mcp_soul_md_placeholder),
                     singleLine = false,
                     maxLines = 4,
                 )
@@ -596,7 +599,7 @@ fun AgentConfigScreen(onBack: () -> Unit) {
                 GlassTextField(
                     value = toolsMd,
                     onValueChange = { toolsMd = it },
-                    placeholder = "TOOLS.md - Tool execution rules and constraints",
+                    placeholder = stringResource(R.string.mcp_tools_md_placeholder),
                     singleLine = false,
                     maxLines = 4,
                 )
@@ -604,7 +607,7 @@ fun AgentConfigScreen(onBack: () -> Unit) {
                 GlassTextField(
                     value = skillMd,
                     onValueChange = { skillMd = it },
-                    placeholder = "SKILL.md - Core competencies and domain knowledge",
+                    placeholder = stringResource(R.string.mcp_skill_md_placeholder),
                     singleLine = false,
                     maxLines = 4,
                 )
@@ -612,13 +615,13 @@ fun AgentConfigScreen(onBack: () -> Unit) {
                 GlassTextField(
                     value = claudeMd,
                     onValueChange = { claudeMd = it },
-                    placeholder = "CLAUDE.md - System-level base prompt overrides",
+                    placeholder = stringResource(R.string.mcp_claude_md_placeholder),
                     singleLine = false,
                     maxLines = 4,
                 )
                 
                 Text(
-                    "These contents are read by the Agent Engine during prompt assembly.",
+                    stringResource(R.string.mcp_prompt_files_note),
                     color = MutedGray,
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -627,21 +630,21 @@ fun AgentConfigScreen(onBack: () -> Unit) {
 
         GlassCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionTitle("Owner Context")
+                SectionTitle(stringResource(R.string.mcp_owner_context))
                 GlassTextField(
                     value = ownerName,
                     onValueChange = { ownerName = it },
-                    placeholder = "Your name",
+                    placeholder = stringResource(R.string.mcp_owner_name_placeholder),
                 )
                 GlassTextField(
                     value = ownerInfo,
                     onValueChange = { ownerInfo = it },
-                    placeholder = "Your preferences, work style, recurring context",
+                    placeholder = stringResource(R.string.mcp_owner_info_placeholder),
                     singleLine = false,
                     maxLines = 4,
                 )
                 Text(
-                    "Owner context is injected at the start of every conversation so the agent remembers who you are.",
+                    stringResource(R.string.mcp_owner_context_note),
                     color = MutedGray,
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -650,14 +653,14 @@ fun AgentConfigScreen(onBack: () -> Unit) {
 
         GlassCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionTitle("Behavior")
+                SectionTitle(stringResource(R.string.mcp_behavior))
 
-                ConfigSwitch("Dynamic Thinking Phrases", "Task-aware processing messages. Shows contextual thinking phrases based on what the agent is doing (coding, researching, editing).", dynamicThinking) { dynamicThinking = it }
-                ConfigSwitch("Emoji Tone Conversion", "Emojis are stripped from speech and converted into subtle tone/emotion hints in the voice output.", emojiTone) { emojiTone = it }
+                ConfigSwitch(stringResource(R.string.mcp_dynamic_thinking_phrases), stringResource(R.string.mcp_dynamic_thinking_phrases_desc), dynamicThinking) { dynamicThinking = it }
+                ConfigSwitch(stringResource(R.string.mcp_emoji_tone_conversion), stringResource(R.string.mcp_emoji_tone_conversion_desc), emojiTone) { emojiTone = it }
 
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "Max Agent Turns: $maxTurns",
+                    stringResource(R.string.mcp_max_agent_turns, maxTurns),
                     color = EmberOrange,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -669,7 +672,7 @@ fun AgentConfigScreen(onBack: () -> Unit) {
                     colors = configSliderColors(),
                 )
                 Text(
-                    "Higher values allow the agent to take more autonomous steps before returning to you. Default: 200.",
+                    stringResource(R.string.mcp_max_turns_note),
                     color = MutedGray,
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -678,15 +681,15 @@ fun AgentConfigScreen(onBack: () -> Unit) {
 
         GlassCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SectionTitle("Approval Mode")
-                ConfigChoice("Default", "Sandbox: full auto. Connected services: ask first.", approvalMode == "default") { approvalMode = "default" }
-                ConfigChoice("Trusted", "Sandbox & services: full auto. Minimal friction.", approvalMode == "trusted") { approvalMode = "trusted" }
-                ConfigChoice("Cautious", "Ask for installs, destructive actions, and external services.", approvalMode == "cautious") { approvalMode = "cautious" }
+                SectionTitle(stringResource(R.string.mcp_approval_mode))
+                ConfigChoice(stringResource(R.string.mcp_approval_default), stringResource(R.string.mcp_approval_default_desc), approvalMode == "default") { approvalMode = "default" }
+                ConfigChoice(stringResource(R.string.mcp_approval_trusted), stringResource(R.string.mcp_approval_trusted_desc), approvalMode == "trusted") { approvalMode = "trusted" }
+                ConfigChoice(stringResource(R.string.mcp_approval_cautious), stringResource(R.string.mcp_approval_cautious_desc), approvalMode == "cautious") { approvalMode = "cautious" }
             }
         }
 
         SaveConfigButton {
-            AppConfigManager.agentName = agentName.trim().ifBlank { "Nova" }
+            AppConfigManager.agentName = agentName.trim().ifBlank { "Claude" }
             AppConfigManager.agentPersonality = agentPersonality.trim().ifBlank { "Professional" }
             AppConfigManager.agentPurpose = agentPurpose.trim().ifBlank { "General assistant" }
             AppConfigManager.ownerName = ownerName.trim()
@@ -709,6 +712,7 @@ fun AgentConfigScreen(onBack: () -> Unit) {
 @Composable
 private fun ConfigScaffold(
     title: String,
+    icon: ImageVector,
     onBack: () -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -721,7 +725,7 @@ private fun ConfigScaffold(
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.mcp_back),
                             tint = SoftWhite,
                         )
                     }
@@ -739,22 +743,14 @@ private fun ConfigScaffold(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            ConfigScreenHeader(title)
+            ConfigScreenHeader(title, icon)
             content()
         }
     }
 }
 
 @Composable
-private fun ConfigScreenHeader(title: String) {
-    val icon = when {
-        title.contains("Audio", ignoreCase = true) -> Icons.Outlined.Headphones
-        title.contains("Connector", ignoreCase = true) -> Icons.Outlined.Link
-        title.contains("Automation", ignoreCase = true) -> Icons.Outlined.CalendarMonth
-        title.contains("Agent", ignoreCase = true) -> Icons.Outlined.Security
-        title.contains("Skill", ignoreCase = true) -> Icons.Outlined.Extension
-        else -> Icons.Outlined.Tag
-    }
+private fun ConfigScreenHeader(title: String, icon: ImageVector) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -771,7 +767,7 @@ private fun ConfigScreenHeader(title: String) {
         Spacer(modifier = Modifier.width(12.dp))
         Column {
             Text(title, color = SoftWhite, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
-            Text("Configure ClawDroid behavior", color = MutedGray, style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(R.string.mcp_configure_clawdroid), color = MutedGray, style = MaterialTheme.typography.bodySmall)
         }
     }
 }
@@ -965,7 +961,7 @@ private fun SkillCard(
             )
         }
         Text(
-            "install",
+            stringResource(R.string.mcp_skill_install),
             color = EmberOrange,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
@@ -979,7 +975,7 @@ private fun SaveConfigButton(onSave: () -> Unit) {
     GlassButton(
         onClick = {
             onSave()
-            Toast.makeText(context, "Settings saved", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.mcp_settings_saved), Toast.LENGTH_SHORT).show()
         },
         modifier = Modifier.fillMaxWidth().height(48.dp),
     ) {
@@ -994,7 +990,7 @@ private fun SaveConfigButton(onSave: () -> Unit) {
                 modifier = Modifier.size(18.dp),
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Save Changes", color = SoftWhite, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.mcp_save_changes), color = SoftWhite, fontWeight = FontWeight.Bold)
         }
     }
 }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ClaudeDroid</string>
+    <string name="accessibility_service_label">ClaudeDroid 屏幕控制</string>
+    <string name="accessibility_service_description">允许 ClaudeDroid 读取屏幕界面，并执行点按、滑动和输入操作，代你完成任务。</string>
+</resources>

@@ -62,6 +62,8 @@ import com.clawdroid.app.ui.theme.MutedGray
 import com.clawdroid.app.ui.theme.NeonBlue
 import com.clawdroid.app.ui.theme.NeonCyan
 import com.clawdroid.app.ui.theme.SoftWhite
+import androidx.compose.ui.res.stringResource
+import com.clawdroid.app.R
 
 @Composable
 fun VoiceOverlay(
@@ -134,7 +136,7 @@ fun VoiceOverlay(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.general_back),
                             tint = SoftWhite,
                         )
                     }
@@ -169,7 +171,7 @@ fun VoiceOverlay(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = if (isMuted) "Microphone Muted" else "Listening...",
+                                text = if (isMuted) stringResource(R.string.general_voice_mic_muted) else stringResource(R.string.general_voice_listening),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MutedGray,
                             )
@@ -215,7 +217,7 @@ fun VoiceOverlay(
                     ) {
                         if (userPartialText.isBlank() && agentResponseText.isBlank()) {
                             Text(
-                                text = "Start speaking to ClawDroid...",
+                                text = stringResource(R.string.general_voice_start_speaking),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MutedGray.copy(alpha = 0.6f),
                                 textAlign = TextAlign.Center,
@@ -225,7 +227,7 @@ fun VoiceOverlay(
                             if (userPartialText.isNotBlank()) {
                                 Column(modifier = Modifier.fillMaxWidth()) {
                                     Text(
-                                        text = "You",
+                                        text = stringResource(R.string.general_voice_you),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = NeonCyan,
                                         fontWeight = FontWeight.Bold,
@@ -241,7 +243,7 @@ fun VoiceOverlay(
                             if (agentResponseText.isNotBlank()) {
                                 Column(modifier = Modifier.fillMaxWidth()) {
                                     Text(
-                                        text = "ClawDroid",
+                                        text = "ClaudeDroid",
                                         style = MaterialTheme.typography.labelSmall,
                                         color = ActivePurple,
                                         fontWeight = FontWeight.Bold,
@@ -281,7 +283,7 @@ fun VoiceOverlay(
                     ) {
                         Icon(
                             imageVector = if (isMuted) Icons.Rounded.MicOff else Icons.Rounded.Mic,
-                            contentDescription = "Mute Mic",
+                            contentDescription = stringResource(R.string.general_voice_mute_mic),
                             tint = muteIconColor,
                             modifier = Modifier.size(26.dp),
                         )
@@ -299,7 +301,7 @@ fun VoiceOverlay(
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.CallEnd,
-                            contentDescription = "End Session",
+                            contentDescription = stringResource(R.string.general_voice_end_session),
                             tint = Color.White,
                             modifier = Modifier.size(26.dp),
                         )

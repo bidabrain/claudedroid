@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -82,13 +83,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clawdroid.app.R
 import com.clawdroid.app.core.config.AppConfigManager
+import com.clawdroid.app.core.config.AppLanguage
 import com.clawdroid.app.core.control.AndroidControlTools
 import com.clawdroid.app.core.control.ScreenCaptureManager
 import com.clawdroid.app.core.control.ScreenReaderService
@@ -114,25 +118,25 @@ import com.clawdroid.app.ui.theme.SoftWhite
 
 private data class TtsEngineOption(
     val id: String,
-    val label: String,
-    val description: String,
+    @StringRes val label: Int,
+    @StringRes val description: Int,
     val icon: ImageVector,
 )
 
 private val ttsEngineOptions = listOf(
-    TtsEngineOption("device", "On-Device (Android TTS)", "Built-in system TTS, works offline", Icons.Outlined.Android),
-    TtsEngineOption("openai", "OpenAI TTS", "6 voices: alloy, echo, fable, onyx, nova, shimmer", Icons.Outlined.Cloud),
-    TtsEngineOption("elevenlabs", "ElevenLabs TTS", "Premium neural voices (Rachel, Domi, Josh…)", Icons.Outlined.Cloud),
-    TtsEngineOption("deepgram", "Deepgram TTS", "12 voices: Asteria, Luna, Orion, Zeus…", Icons.Outlined.Cloud),
+    TtsEngineOption("device", R.string.settings_tts_device, R.string.settings_tts_device_desc, Icons.Outlined.Android),
+    TtsEngineOption("openai", R.string.settings_tts_openai, R.string.settings_tts_openai_desc, Icons.Outlined.Cloud),
+    TtsEngineOption("elevenlabs", R.string.settings_tts_elevenlabs, R.string.settings_tts_elevenlabs_desc, Icons.Outlined.Cloud),
+    TtsEngineOption("deepgram", R.string.settings_tts_deepgram, R.string.settings_tts_deepgram_desc, Icons.Outlined.Cloud),
 )
 
 private val openaiVoices = listOf(
-    "alloy" to "Alloy (Versatile)",
-    "echo" to "Echo (Male / Warm)",
-    "fable" to "Fable (British / Narrative)",
-    "onyx" to "Onyx (Deep / Male)",
-    "nova" to "Nova (Female / Warm)",
-    "shimmer" to "Shimmer (Female / Clear)",
+    "alloy" to R.string.settings_voice_alloy,
+    "echo" to R.string.settings_voice_echo,
+    "fable" to R.string.settings_voice_fable,
+    "onyx" to R.string.settings_voice_onyx,
+    "nova" to R.string.settings_voice_nova,
+    "shimmer" to R.string.settings_voice_shimmer,
 )
 
 private val realtimeVoices = listOf(
@@ -215,7 +219,7 @@ fun SettingsScreen(
             screenCaptureActive = ok
             Toast.makeText(
                 context,
-                if (ok) "Screen capture active" else "Failed to start screen capture",
+                if (ok) context.getString(R.string.settings_toast_capture_active) else context.getString(R.string.settings_toast_capture_failed),
                 Toast.LENGTH_SHORT,
             ).show()
         }
@@ -266,7 +270,7 @@ fun SettingsScreen(
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        Toast.makeText(context, "Permissions updated.", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, context.getString(R.string.settings_toast_permissions_updated), Toast.LENGTH_SHORT).show()
     }
 
     val storagePermissionLauncher = rememberLauncherForActivityResult(
@@ -288,7 +292,7 @@ fun SettingsScreen(
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             if (!android.provider.Settings.canDrawOverlays(context)) {
-                Toast.makeText(context, "Enable System Alert Window", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.settings_toast_enable_overlay), Toast.LENGTH_LONG).show()
                 val intent = Intent(
                     android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                     Uri.parse("package:${context.packageName}")
@@ -307,7 +311,7 @@ fun SettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Settings",
+                        stringResource(R.string.settings_title),
                         color = SoftWhite,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -316,7 +320,7 @@ fun SettingsScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.settings_back),
                             tint = SoftWhite,
                         )
                     }
@@ -338,9 +342,45 @@ fun SettingsScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
+            // ── Language ─────────────────────────────────────
+            GlowText(
+                text = stringResource(R.string.settings_section_language),
+                style = MaterialTheme.typography.titleLarge,
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            GlassCard {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    val currentLanguage = remember { AppLanguage.get(context) }
+                    listOf(
+                        Triple(AppLanguage.ZH, "简体中文", R.string.settings_language_zh_desc),
+                        Triple(AppLanguage.EN, "English", R.string.settings_language_en_desc),
+                        Triple(AppLanguage.SYSTEM, stringResource(R.string.settings_language_system), R.string.settings_language_system_desc),
+                    ).forEach { (code, label, desc) ->
+                        SelectableCard(
+                            label = label,
+                            description = stringResource(desc),
+                            isSelected = currentLanguage == code,
+                            onClick = {
+                                if (code != currentLanguage) {
+                                    AppLanguage.set(context, code)
+                                    // Android 13+ recreates the activity itself when the app locale changes.
+                                    if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) {
+                                        (context as? Activity)?.recreate()
+                                    }
+                                }
+                            },
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             // ── Voice & Speech ───────────────────────────────
             GlowText(
-                text = "Voice & Speech",
+                text = stringResource(R.string.settings_section_voice),
                 style = MaterialTheme.typography.titleLarge,
             )
 
@@ -353,9 +393,9 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Realtime Voice", style = MaterialTheme.typography.labelLarge, color = EmberOrange)
+                            Text(stringResource(R.string.settings_realtime_voice), style = MaterialTheme.typography.labelLarge, color = EmberOrange)
                             Text(
-                                text = "Use OpenAI Realtime for live call sessions when native WebRTC transport is available.",
+                                text = stringResource(R.string.settings_realtime_voice_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MutedGray,
                             )
@@ -375,28 +415,28 @@ fun SettingsScreen(
 
                     AnimatedVisibility(visible = realtimeVoiceEnabled) {
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Text("Realtime API Key", style = MaterialTheme.typography.labelLarge, color = EmberOrange)
+                            Text(stringResource(R.string.settings_realtime_api_key), style = MaterialTheme.typography.labelLarge, color = EmberOrange)
                             Text(
-                                text = "Uses OPENAI_REALTIME_API_KEY from .env unless you enter a key here.",
+                                text = stringResource(R.string.settings_realtime_api_key_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MutedGray,
                             )
                             GlassTextField(
                                 value = openaiRealtimeApiKey,
                                 onValueChange = { openaiRealtimeApiKey = it; saved = false },
-                                placeholder = "sk-... (leave blank to use .env)",
+                                placeholder = stringResource(R.string.settings_realtime_api_key_hint),
                                 visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             )
 
-                            Text("Realtime Model", style = MaterialTheme.typography.labelLarge, color = EmberOrange)
+                            Text(stringResource(R.string.settings_realtime_model), style = MaterialTheme.typography.labelLarge, color = EmberOrange)
                             GlassTextField(
                                 value = realtimeVoiceModel,
                                 onValueChange = { realtimeVoiceModel = it; saved = false },
                                 placeholder = "gpt-realtime-2",
                             )
 
-                            Text("Realtime Voice", style = MaterialTheme.typography.labelLarge, color = EmberOrange)
+                            Text(stringResource(R.string.settings_realtime_voice), style = MaterialTheme.typography.labelLarge, color = EmberOrange)
                             realtimeVoices.forEach { (id, label) ->
                                 val isSelected = realtimeVoiceVoice == id
                                 Row(
@@ -430,7 +470,7 @@ fun SettingsScreen(
                     }
 
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("TTS Engine", style = MaterialTheme.typography.labelLarge, color = EmberOrange)
+                    Text(stringResource(R.string.settings_tts_engine), style = MaterialTheme.typography.labelLarge, color = EmberOrange)
 
                     ttsEngineOptions.forEach { option ->
                         val isSelected = ttsEngine == option.id
@@ -453,13 +493,13 @@ fun SettingsScreen(
                             Spacer(modifier = Modifier.width(14.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = option.label,
+                                    text = stringResource(option.label),
                                     color = SoftWhite,
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 14.sp,
                                 )
                                 Text(
-                                    text = option.description,
+                                    text = stringResource(option.description),
                                     color = MutedGray,
                                     fontSize = 12.sp,
                                 )
@@ -479,21 +519,21 @@ fun SettingsScreen(
                     when (ttsEngine) {
                         "openai" -> {
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("OpenAI API Key", style = MaterialTheme.typography.labelLarge, color = EmberOrange)
+                            Text(stringResource(R.string.settings_openai_api_key), style = MaterialTheme.typography.labelLarge, color = EmberOrange)
                             Text(
-                                text = "Uses a dedicated OpenAI TTS key, or falls back to the main API key above.",
+                                text = stringResource(R.string.settings_openai_tts_key_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MutedGray,
                             )
                             GlassTextField(
                                 value = openaiTtsApiKey,
                                 onValueChange = { openaiTtsApiKey = it; saved = false },
-                                placeholder = "sk-… (leave blank to reuse main API key)",
+                                placeholder = stringResource(R.string.settings_openai_tts_key_hint),
                                 visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             )
                             Spacer(modifier = Modifier.height(12.dp))
-                            Text("OpenAI Voice", style = MaterialTheme.typography.labelLarge, color = EmberOrange)
+                            Text(stringResource(R.string.settings_openai_voice), style = MaterialTheme.typography.labelLarge, color = EmberOrange)
                             openaiVoices.forEach { (id, label) ->
                                 val isSelected = ttsVoice == id
                                 Row(
@@ -507,7 +547,7 @@ fun SettingsScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Text(
-                                        text = label,
+                                        text = stringResource(label),
                                         color = SoftWhite,
                                         fontWeight = FontWeight.SemiBold,
                                         modifier = Modifier.weight(1f),
@@ -527,16 +567,16 @@ fun SettingsScreen(
 
                         "elevenlabs" -> {
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("ElevenLabs API Key", style = MaterialTheme.typography.labelLarge, color = EmberOrange)
+                            Text(stringResource(R.string.settings_elevenlabs_api_key), style = MaterialTheme.typography.labelLarge, color = EmberOrange)
                             GlassTextField(
                                 value = elevenlabsApiKey,
                                 onValueChange = { elevenlabsApiKey = it; saved = false },
-                                placeholder = "Enter your ElevenLabs API key",
+                                placeholder = stringResource(R.string.settings_elevenlabs_api_key_hint),
                                 visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             )
                             Spacer(modifier = Modifier.height(12.dp))
-                            Text("ElevenLabs Voice", style = MaterialTheme.typography.labelLarge, color = EmberOrange)
+                            Text(stringResource(R.string.settings_elevenlabs_voice), style = MaterialTheme.typography.labelLarge, color = EmberOrange)
                             com.clawdroid.app.core.voice.ElevenLabsTtsEngine.PRESET_VOICES.forEach { (id, label) ->
                                 val isSelected = ttsVoice == id
                                 Row(
@@ -570,16 +610,16 @@ fun SettingsScreen(
 
                         "deepgram" -> {
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("Deepgram API Key", style = MaterialTheme.typography.labelLarge, color = EmberOrange)
+                            Text(stringResource(R.string.settings_deepgram_api_key), style = MaterialTheme.typography.labelLarge, color = EmberOrange)
                             GlassTextField(
                                 value = deepgramApiKey,
                                 onValueChange = { deepgramApiKey = it; saved = false },
-                                placeholder = "Enter your Deepgram API key",
+                                placeholder = stringResource(R.string.settings_deepgram_api_key_hint),
                                 visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             )
                             Spacer(modifier = Modifier.height(12.dp))
-                            Text("Deepgram Voice", style = MaterialTheme.typography.labelLarge, color = EmberOrange)
+                            Text(stringResource(R.string.settings_deepgram_voice), style = MaterialTheme.typography.labelLarge, color = EmberOrange)
                             com.clawdroid.app.core.voice.DeepgramTtsEngine.PRESET_VOICES.forEach { (id, label) ->
                                 val isSelected = ttsVoice == id
                                 Row(
@@ -613,7 +653,7 @@ fun SettingsScreen(
                     }
 
                     Text(
-                        text = "Speech Speed: ${String.format("%.1fx", ttsSpeed)}",
+                        text = stringResource(R.string.settings_speech_speed, String.format("%.1f", ttsSpeed)),
                         style = MaterialTheme.typography.labelLarge,
                         color = EmberOrange,
                     )
@@ -650,13 +690,13 @@ fun SettingsScreen(
                             Spacer(modifier = Modifier.width(14.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = if (piperInstalled) "Piper Neural Voice Installed" else "Piper Neural TTS",
+                                    text = if (piperInstalled) stringResource(R.string.settings_piper_installed) else stringResource(R.string.settings_piper_title),
                                     color = SoftWhite,
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 14.sp,
                                 )
                                 Text(
-                                    text = if (piperInstalled) "Ryan — Male US (realistic, offline)" else "Download 50MB male voice model for realistic speech",
+                                    text = if (piperInstalled) stringResource(R.string.settings_piper_installed_desc) else stringResource(R.string.settings_piper_download_desc),
                                     color = MutedGray,
                                     fontSize = 12.sp,
                                 )
@@ -666,7 +706,7 @@ fun SettingsScreen(
                                     onClick = { piperEngine.startDownload() },
                                     modifier = Modifier.width(100.dp).height(36.dp),
                                 ) {
-                                    Text("Download", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = SoftWhite)
+                                    Text(stringResource(R.string.settings_download), fontWeight = FontWeight.Bold, fontSize = 11.sp, color = SoftWhite)
                                 }
                             }
                         }
@@ -676,11 +716,11 @@ fun SettingsScreen(
                     GlassButton(
                         onClick = {
                             testTts?.let { tts ->
-                                tts.language = Locale.US
+                                tts.language = AppLanguage.current(context)
                                 tts.setPitch(0.75f)
                                 tts.setSpeechRate(0.82f * ttsSpeed)
                                 tts.speak(
-                                    "Hello, I am ${AppConfigManager.agentName}. This is my voice.",
+                                    context.getString(R.string.settings_test_voice_phrase, AppConfigManager.agentName),
                                     TextToSpeech.QUEUE_FLUSH,
                                     null,
                                     "test"
@@ -699,7 +739,7 @@ fun SettingsScreen(
                                 modifier = Modifier.size(18.dp),
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("🔊 Test Voice", fontWeight = FontWeight.SemiBold, color = SoftWhite)
+                            Text(stringResource(R.string.settings_test_voice), fontWeight = FontWeight.SemiBold, color = SoftWhite)
                         }
                     }
                 }
@@ -714,7 +754,7 @@ fun SettingsScreen(
 
             // ── Agent ────────────────────────────────────────
             GlowText(
-                text = "Agent",
+                text = stringResource(R.string.settings_section_agent),
                 style = MaterialTheme.typography.titleLarge,
             )
 
@@ -734,9 +774,9 @@ fun SettingsScreen(
                                 modifier = Modifier.size(20.dp),
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Approval Mode", style = MaterialTheme.typography.bodyMedium, color = MutedGray)
+                            Text(stringResource(R.string.settings_approval_mode), style = MaterialTheme.typography.bodyMedium, color = MutedGray)
                         }
-                        Text("Default", style = MaterialTheme.typography.bodyMedium, color = SoftWhite, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.settings_approval_mode_default), style = MaterialTheme.typography.bodyMedium, color = SoftWhite, fontWeight = FontWeight.Medium)
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -750,9 +790,9 @@ fun SettingsScreen(
                                 modifier = Modifier.size(20.dp),
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Sandbox", style = MaterialTheme.typography.bodyMedium, color = MutedGray)
+                            Text(stringResource(R.string.settings_sandbox), style = MaterialTheme.typography.bodyMedium, color = MutedGray)
                         }
-                        Text("Full Auto", style = MaterialTheme.typography.bodyMedium, color = SoftWhite, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.settings_full_auto), style = MaterialTheme.typography.bodyMedium, color = SoftWhite, fontWeight = FontWeight.Medium)
                     }
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -764,13 +804,13 @@ fun SettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "ULTRA AGENT Mode",
+                                stringResource(R.string.settings_ultra_agent_mode),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = if (isUltraAgentEnabled) Color(0xFFEF5350) else SoftWhite,
                                 fontWeight = FontWeight.Bold,
                             )
                             Text(
-                                "Grant autonomous device execution",
+                                stringResource(R.string.settings_ultra_agent_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MutedGray,
                             )
@@ -795,7 +835,7 @@ fun SettingsScreen(
                     }
 
                     Text(
-                        text = "Configure how much autonomy the agent has.",
+                        text = stringResource(R.string.settings_autonomy_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MutedGray.copy(alpha = 0.7f),
                     )
@@ -807,7 +847,7 @@ fun SettingsScreen(
                     onDismissRequest = { showWarningDialog = false },
                     title = {
                         Text(
-                            text = "⚠️ WARNING: ULTRA AGENT",
+                            text = stringResource(R.string.settings_ultra_warning_title),
                             color = Color(0xFFEF5350),
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.titleLarge,
@@ -815,7 +855,7 @@ fun SettingsScreen(
                     },
                     text = {
                         Text(
-                            text = "Ultra Agent mode grants the AI permission to automatically run commands, access external APIs, and execute administrative functions on your device without approval. Continue?",
+                            text = stringResource(R.string.settings_ultra_warning_text),
                             color = SoftWhite,
                             style = MaterialTheme.typography.bodyMedium,
                         )
@@ -829,12 +869,12 @@ fun SettingsScreen(
                                 requestUltraAgentPermissions()
                             },
                         ) {
-                            Text("YES, ENABLE", color = Color(0xFFEF5350), fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.settings_ultra_confirm), color = Color(0xFFEF5350), fontWeight = FontWeight.Bold)
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showWarningDialog = false }) {
-                            Text("CANCEL", color = SoftWhite)
+                            Text(stringResource(R.string.settings_cancel), color = SoftWhite)
                         }
                     },
                     containerColor = DeepBlack,
@@ -846,7 +886,7 @@ fun SettingsScreen(
 
             // ── Android Control ─────────────────────────────
             GlowText(
-                text = "Android Control",
+                text = stringResource(R.string.settings_section_android_control),
                 style = MaterialTheme.typography.titleLarge,
             )
 
@@ -861,13 +901,13 @@ fun SettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "Accessibility Service",
+                                stringResource(R.string.settings_accessibility_service),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = SoftWhite,
                                 fontWeight = FontWeight.Bold,
                             )
                             Text(
-                                if (accessibilityActive) "Screen control active" else "Required for UI tree reading and gestures",
+                                if (accessibilityActive) stringResource(R.string.settings_screen_control_active) else stringResource(R.string.settings_accessibility_required),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = if (accessibilityActive) Color(0xFF66BB6A) else MutedGray,
                             )
@@ -889,7 +929,7 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(
-                            if (accessibilityActive) "Manage Accessibility" else "Enable Accessibility Access",
+                            if (accessibilityActive) stringResource(R.string.settings_manage_accessibility) else stringResource(R.string.settings_enable_accessibility),
                             color = SoftWhite,
                             fontWeight = FontWeight.SemiBold,
                         )
@@ -902,13 +942,13 @@ fun SettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "Screen Capture",
+                                stringResource(R.string.settings_screen_capture),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = SoftWhite,
                                 fontWeight = FontWeight.Bold,
                             )
                             Text(
-                                if (screenCaptureActive) "Vision fallback active" else "Fallback when UI tree is empty",
+                                if (screenCaptureActive) stringResource(R.string.settings_vision_fallback_active) else stringResource(R.string.settings_vision_fallback_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = if (screenCaptureActive) Color(0xFF66BB6A) else MutedGray,
                             )
@@ -933,7 +973,7 @@ fun SettingsScreen(
                             },
                             modifier = Modifier.weight(1f),
                         ) {
-                            Text("Grant Capture", color = SoftWhite, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.settings_grant_capture), color = SoftWhite, fontWeight = FontWeight.SemiBold)
                         }
                         if (screenCaptureActive) {
                             GlassButton(
@@ -943,7 +983,7 @@ fun SettingsScreen(
                                 },
                                 modifier = Modifier.weight(1f),
                             ) {
-                                Text("Stop Capture", color = SoftWhite, fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.settings_stop_capture), color = SoftWhite, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
@@ -954,7 +994,7 @@ fun SettingsScreen(
                             scope.launch {
                                 val result = AndroidControlTools.getScreen(context).toString(2)
                                 screenTestResult = if (result.length > 8000) {
-                                    result.take(8000) + "\n…(truncated)"
+                                    result.take(8000) + context.getString(R.string.settings_truncated_suffix)
                                 } else {
                                     result
                                 }
@@ -966,7 +1006,7 @@ fun SettingsScreen(
                         enabled = !screenTestLoading,
                     ) {
                         Text(
-                            if (screenTestLoading) "Reading screen…" else "Test Screen Read",
+                            if (screenTestLoading) stringResource(R.string.settings_reading_screen) else stringResource(R.string.settings_test_screen_read),
                             color = SoftWhite,
                             fontWeight = FontWeight.SemiBold,
                         )
@@ -978,7 +1018,7 @@ fun SettingsScreen(
                 AlertDialog(
                     onDismissRequest = { showScreenTestDialog = false },
                     title = {
-                        Text("Screen Read Result", color = SoftWhite, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.settings_screen_read_result), color = SoftWhite, fontWeight = FontWeight.Bold)
                     },
                     text = {
                         Column(
@@ -987,8 +1027,9 @@ fun SettingsScreen(
                                 .height(320.dp)
                                 .verticalScroll(rememberScrollState()),
                         ) {
+                            val noResultText = stringResource(R.string.settings_no_result)
                             Text(
-                                text = screenTestResult.ifBlank { "No result" },
+                                text = screenTestResult.ifBlank { noResultText },
                                 color = SoftWhite,
                                 style = MaterialTheme.typography.bodySmall,
                                 fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
@@ -997,7 +1038,7 @@ fun SettingsScreen(
                     },
                     confirmButton = {
                         TextButton(onClick = { showScreenTestDialog = false }) {
-                            Text("CLOSE", color = SoftWhite)
+                            Text(stringResource(R.string.settings_close), color = SoftWhite)
                         }
                     },
                     containerColor = DeepBlack,
@@ -1009,7 +1050,7 @@ fun SettingsScreen(
 
             // ── System Assistant ─────────────────────────────
             GlowText(
-                text = "System Assistant",
+                text = stringResource(R.string.settings_section_system_assistant),
                 style = MaterialTheme.typography.titleLarge,
             )
 
@@ -1026,13 +1067,13 @@ fun SettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "Default Digital Assistant",
+                                stringResource(R.string.settings_default_assistant),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = SoftWhite,
                                 fontWeight = FontWeight.Bold,
                             )
                             Text(
-                                if (isDefault.value) "ClawDroid is default assistant" else "Select ClawDroid as system default assistant",
+                                if (isDefault.value) stringResource(R.string.settings_is_default_assistant) else stringResource(R.string.settings_select_default_assistant),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = if (isDefault.value) Color(0xFF66BB6A) else MutedGray,
                             )
@@ -1060,7 +1101,7 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(
-                            if (isDefault.value) "Manage Assistant Settings" else "Set as Default Assistant",
+                            if (isDefault.value) stringResource(R.string.settings_manage_assistant) else stringResource(R.string.settings_set_default_assistant),
                             color = SoftWhite,
                             fontWeight = FontWeight.SemiBold,
                         )
@@ -1072,8 +1113,8 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Assistant Mode", color = SoftWhite, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
-                            Text("Enable overlay gesture and context retrieval", style = MaterialTheme.typography.bodySmall, color = MutedGray)
+                            Text(stringResource(R.string.settings_assistant_mode), color = SoftWhite, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.settings_assistant_mode_desc), style = MaterialTheme.typography.bodySmall, color = MutedGray)
                         }
                         Switch(
                             checked = assistantModeEnabled,
@@ -1093,8 +1134,8 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Doodle Overlay / Lasso", color = SoftWhite, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
-                            Text("Draw or circle regions to trigger search/automation", style = MaterialTheme.typography.bodySmall, color = MutedGray)
+                            Text(stringResource(R.string.settings_doodle_overlay), color = SoftWhite, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.settings_doodle_overlay_desc), style = MaterialTheme.typography.bodySmall, color = MutedGray)
                         }
                         Switch(
                             checked = doodleOverlayEnabled,
@@ -1114,8 +1155,8 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Screen Context Reading", color = SoftWhite, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
-                            Text("Extract visible layout texts and content descriptions", style = MaterialTheme.typography.bodySmall, color = MutedGray)
+                            Text(stringResource(R.string.settings_screen_context), color = SoftWhite, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.settings_screen_context_desc), style = MaterialTheme.typography.bodySmall, color = MutedGray)
                         }
                         Switch(
                             checked = screenContextEnabled,
@@ -1135,8 +1176,8 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Save screenshots to history", color = SoftWhite, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
-                            Text("Persist session layout images to local storage history", style = MaterialTheme.typography.bodySmall, color = MutedGray)
+                            Text(stringResource(R.string.settings_save_screenshots), color = SoftWhite, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.settings_save_screenshots_desc), style = MaterialTheme.typography.bodySmall, color = MutedGray)
                         }
                         Switch(
                             checked = saveScreenshotsToHistory,
@@ -1156,7 +1197,7 @@ fun SettingsScreen(
 
             // ── Skills & Channels ───────────────────────────
             GlowText(
-                text = "Skills & Channels",
+                text = stringResource(R.string.settings_section_skills_channels),
                 style = MaterialTheme.typography.titleLarge,
             )
 
@@ -1165,18 +1206,18 @@ fun SettingsScreen(
             GlassCard {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        "Workspace Files",
+                        stringResource(R.string.settings_workspace_files),
                         style = MaterialTheme.typography.bodyLarge,
                         color = SoftWhite,
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        "Edit SOUL.md, AGENTS.md, TOOLS.md, and other agent context files.",
+                        stringResource(R.string.settings_workspace_files_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MutedGray,
                     )
                     GlassButton(onClick = onNavigateToWorkspaceFiles, modifier = Modifier.fillMaxWidth()) {
-                        Text("Open Workspace Files", color = SoftWhite, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.settings_open_workspace_files), color = SoftWhite, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -1193,13 +1234,13 @@ fun SettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "WhatsApp Automation (Channel)",
+                                stringResource(R.string.settings_whatsapp_automation),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = SoftWhite,
                                 fontWeight = FontWeight.Bold,
                             )
                             Text(
-                                "Draft and send responses autonomously",
+                                stringResource(R.string.settings_whatsapp_automation_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MutedGray,
                             )
@@ -1226,7 +1267,7 @@ fun SettingsScreen(
                                     },
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text("Grant Notification Access", color = EmberOrange, fontWeight = FontWeight.Bold)
+                                    Text(stringResource(R.string.settings_grant_notification_access), color = EmberOrange, fontWeight = FontWeight.Bold)
                                 }
                             } else {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1237,15 +1278,15 @@ fun SettingsScreen(
                                         modifier = Modifier.size(18.dp),
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Notification Access Granted", color = EmberOrange, fontWeight = FontWeight.Medium)
+                                    Text(stringResource(R.string.settings_notification_access_granted), color = EmberOrange, fontWeight = FontWeight.Medium)
                                 }
                             }
 
-                            Text("Allowed Contacts", style = MaterialTheme.typography.labelLarge, color = EmberOrange)
+                            Text(stringResource(R.string.settings_allowed_contacts), style = MaterialTheme.typography.labelLarge, color = EmberOrange)
                             GlassTextField(
                                 value = whatsappAllowedContacts,
                                 onValueChange = { whatsappAllowedContacts = it; saved = false },
-                                placeholder = "e.g. John Doe, Alice Smith (leave empty for all)",
+                                placeholder = stringResource(R.string.settings_allowed_contacts_hint_all),
                             )
                         }
                     }
@@ -1262,13 +1303,13 @@ fun SettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "Autonomous Heartbeat (Skill)",
+                                stringResource(R.string.settings_heartbeat),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = SoftWhite,
                                 fontWeight = FontWeight.Bold,
                             )
                             Text(
-                                "Run tasks list inside heartbeat.md files",
+                                stringResource(R.string.settings_heartbeat_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MutedGray,
                             )
@@ -1288,7 +1329,7 @@ fun SettingsScreen(
                     AnimatedVisibility(visible = heartbeatEnabled) {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(
-                                "Checklist Scan Interval: ${heartbeatIntervalMin}m",
+                                stringResource(R.string.settings_heartbeat_interval, heartbeatIntervalMin),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = SoftWhite,
                                 fontWeight = FontWeight.SemiBold
@@ -1313,7 +1354,7 @@ fun SettingsScreen(
 
             // ── Background Agent ─────────────────────────────
             GlowText(
-                text = "Background Agent",
+                text = stringResource(R.string.settings_section_background_agent),
                 style = MaterialTheme.typography.titleLarge,
             )
 
@@ -1327,9 +1368,9 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("24/7 Background Mode", style = MaterialTheme.typography.labelLarge, color = EmberOrange)
+                            Text(stringResource(R.string.settings_background_mode), style = MaterialTheme.typography.labelLarge, color = EmberOrange)
                             Text(
-                                text = "Agent runs in foreground service, listens on channels, processes heartbeats",
+                                text = stringResource(R.string.settings_background_mode_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MutedGray,
                             )
@@ -1352,7 +1393,7 @@ fun SettingsScreen(
                             Text("●", color = EmberOrange, fontSize = 10.sp)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Service active — channels connected",
+                                text = stringResource(R.string.settings_service_active),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MutedGray,
                             )
@@ -1365,8 +1406,8 @@ fun SettingsScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("WhatsApp Channel", color = SoftWhite, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
-                                Text("Connect via WhatsApp Web", style = MaterialTheme.typography.bodySmall, color = MutedGray)
+                                Text(stringResource(R.string.settings_whatsapp_channel), color = SoftWhite, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
+                                Text(stringResource(R.string.settings_whatsapp_channel_desc), style = MaterialTheme.typography.bodySmall, color = MutedGray)
                             }
                             Switch(
                                 checked = whatsappEnabled,
@@ -1381,11 +1422,11 @@ fun SettingsScreen(
                         }
 
                         if (whatsappEnabled) {
-                            Text("Allowed Contacts", style = MaterialTheme.typography.bodySmall, color = MutedGray)
+                            Text(stringResource(R.string.settings_allowed_contacts), style = MaterialTheme.typography.bodySmall, color = MutedGray)
                             GlassTextField(
                                 value = whatsappAllowedContacts,
                                 onValueChange = { whatsappAllowedContacts = it; saved = false },
-                                placeholder = "e.g. John Doe, Alice Smith",
+                                placeholder = stringResource(R.string.settings_allowed_contacts_hint),
                             )
                         }
 
@@ -1396,8 +1437,8 @@ fun SettingsScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("SMS Channel", color = SoftWhite, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
-                                Text("Read and reply to SMS", style = MaterialTheme.typography.bodySmall, color = MutedGray)
+                                Text(stringResource(R.string.settings_sms_channel), color = SoftWhite, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
+                                Text(stringResource(R.string.settings_sms_channel_desc), style = MaterialTheme.typography.bodySmall, color = MutedGray)
                             }
                             Switch(
                                 checked = smsEnabled,
@@ -1416,17 +1457,17 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         // Agent config management
-                        Text("Agent Configuration", style = MaterialTheme.typography.labelLarge, color = EmberOrange)
+                        Text(stringResource(R.string.settings_agent_configuration), style = MaterialTheme.typography.labelLarge, color = EmberOrange)
                         Text(
-                            text = "Config is stored in the sandbox as agent_config.json. Skills are loaded from ~/skills/*.md files.",
+                            text = stringResource(R.string.settings_agent_configuration_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MutedGray,
                         )
                         GlassButton(onClick = {
                             saveAndSync()
-                            Toast.makeText(context, "Config saved to ~/agent_config.json", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.settings_toast_config_saved), Toast.LENGTH_SHORT).show()
                         }) {
-                            Text("Export Config", fontWeight = FontWeight.SemiBold, color = SoftWhite)
+                            Text(stringResource(R.string.settings_export_config), fontWeight = FontWeight.SemiBold, color = SoftWhite)
                         }
                     }
                 }
@@ -1436,7 +1477,7 @@ fun SettingsScreen(
 
             // ── File Storage ─────────────────────────────────
             GlowText(
-                text = "File Storage",
+                text = stringResource(R.string.settings_section_file_storage),
                 style = MaterialTheme.typography.titleLarge,
             )
 
@@ -1444,9 +1485,9 @@ fun SettingsScreen(
 
             GlassCard {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Shared Folder", style = MaterialTheme.typography.labelLarge, color = EmberOrange)
+                    Text(stringResource(R.string.settings_shared_folder), style = MaterialTheme.typography.labelLarge, color = EmberOrange)
                     Text(
-                        text = "Documents/ClawDroid/Inbox, Output, Projects, Exports",
+                        text = "Documents/ClaudeDroid/Inbox, Output, Projects, Exports",
                         style = MaterialTheme.typography.bodySmall,
                         color = MutedGray,
                     )
@@ -1478,7 +1519,7 @@ fun SettingsScreen(
                                     modifier = Modifier.size(18.dp),
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Enable File Access", fontWeight = FontWeight.SemiBold, color = SoftWhite)
+                                Text(stringResource(R.string.settings_enable_file_access), fontWeight = FontWeight.SemiBold, color = SoftWhite)
                             }
                         }
                     } else {
@@ -1490,12 +1531,12 @@ fun SettingsScreen(
                                 modifier = Modifier.size(18.dp),
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("File access granted", color = EmberOrange, fontWeight = FontWeight.Medium)
+                            Text(stringResource(R.string.settings_file_access_granted), color = EmberOrange, fontWeight = FontWeight.Medium)
                         }
                     }
 
                     Text(
-                        text = "Agent saves downloaded voices, session files, and exported data to the shared folder.",
+                        text = stringResource(R.string.settings_shared_folder_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MutedGray.copy(alpha = 0.7f),
                     )
@@ -1506,7 +1547,7 @@ fun SettingsScreen(
 
             // ── About ────────────────────────────────────────
             GlowText(
-                text = "About",
+                text = stringResource(R.string.settings_section_about),
                 style = MaterialTheme.typography.titleLarge,
             )
 
@@ -1526,7 +1567,7 @@ fun SettingsScreen(
                                 modifier = Modifier.size(20.dp),
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Version", style = MaterialTheme.typography.bodyMedium, color = MutedGray)
+                            Text(stringResource(R.string.settings_version), style = MaterialTheme.typography.bodyMedium, color = MutedGray)
                         }
                         Text("0.1.0", style = MaterialTheme.typography.bodyMedium, color = SoftWhite, fontWeight = FontWeight.Medium)
                     }
@@ -1542,12 +1583,12 @@ fun SettingsScreen(
                                 modifier = Modifier.size(20.dp),
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Architecture", style = MaterialTheme.typography.bodyMedium, color = MutedGray)
+                            Text(stringResource(R.string.settings_architecture), style = MaterialTheme.typography.bodyMedium, color = MutedGray)
                         }
                         Text("Kotlin + Compose", style = MaterialTheme.typography.bodyMedium, color = SoftWhite, fontWeight = FontWeight.Medium)
                     }
                     Text(
-                        text = "Built with Kotlin, Jetpack Compose, and Material 3.",
+                        text = stringResource(R.string.settings_built_with),
                         style = MaterialTheme.typography.bodySmall,
                         color = MutedGray.copy(alpha = 0.7f),
                     )
@@ -1669,7 +1710,7 @@ private fun SaveButton(
             }
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = if (saved) "Saved!" else "Save Changes",
+                text = if (saved) stringResource(R.string.settings_saved) else stringResource(R.string.settings_save_changes),
                 fontWeight = FontWeight.SemiBold,
                 color = SoftWhite,
                 modifier = Modifier.alpha(saveAlpha),

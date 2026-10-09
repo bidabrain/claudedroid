@@ -70,7 +70,7 @@ class MemoryManager(private val context: Context) {
     }
 
     private fun buildInitialMemory(): String = """
-# ClawDroid Agent Memory
+# ClaudeDroid Agent Memory
 
 Persistent memory for the agent. Facts and session summaries are stored here.
 

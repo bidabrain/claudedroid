@@ -39,6 +39,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.clawdroid.app.R
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -70,10 +72,10 @@ fun WorkspaceFilesScreen(onBack: () -> Unit) {
         containerColor = DeepBlack,
         topBar = {
             TopAppBar(
-                title = { Text("Workspace Files", color = SoftWhite, fontWeight = FontWeight.SemiBold) },
+                title = { Text(stringResource(R.string.config_workspace_title), color = SoftWhite, fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = SoftWhite)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.config_back), tint = SoftWhite)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = DeepBlack),
@@ -89,7 +91,7 @@ fun WorkspaceFilesScreen(onBack: () -> Unit) {
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            GlowText("Agent Workspace", style = MaterialTheme.typography.titleLarge)
+            GlowText(stringResource(R.string.config_workspace_header), style = MaterialTheme.typography.titleLarge)
             files.forEach { file ->
                 WorkspaceFileRow(file = file) {
                     editing = file
@@ -122,8 +124,8 @@ fun WorkspaceFilesScreen(onBack: () -> Unit) {
                     WorkspaceFileManager.save(context, file.name, editorText)
                     reload()
                     editing = null
-                    Toast.makeText(context, "${file.name} saved", Toast.LENGTH_SHORT).show()
-                }) { Text("SAVE", color = EmberOrange) }
+                    Toast.makeText(context, context.getString(R.string.config_file_saved_toast, file.name), Toast.LENGTH_SHORT).show()
+                }) { Text(stringResource(R.string.config_save_caps), color = EmberOrange) }
             },
             dismissButton = {
                 Row {
@@ -131,8 +133,8 @@ fun WorkspaceFilesScreen(onBack: () -> Unit) {
                         WorkspaceFileManager.reset(context, file.name)
                         reload()
                         editing = null
-                    }) { Text("RESET", color = MutedGray) }
-                    TextButton(onClick = { editing = null }) { Text("CANCEL", color = SoftWhite) }
+                    }) { Text(stringResource(R.string.config_reset_caps), color = MutedGray) }
+                    TextButton(onClick = { editing = null }) { Text(stringResource(R.string.config_cancel_caps), color = SoftWhite) }
                 }
             },
             containerColor = DeepBlack,
@@ -155,7 +157,7 @@ private fun WorkspaceFileRow(file: WorkspaceFile, onClick: () -> Unit) {
                 Text(file.title, color = SoftWhite, fontWeight = FontWeight.Bold)
                 Text(file.description, color = MutedGray, style = MaterialTheme.typography.bodySmall)
                 Text(
-                    "Modified ${DateFormat.format("MMM d, h:mm a", file.lastModified)}",
+                    stringResource(R.string.config_modified, DateFormat.format("MMM d, h:mm a", file.lastModified).toString()),
                     color = MutedGray.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.labelSmall,
                     fontFamily = FontFamily.Monospace,

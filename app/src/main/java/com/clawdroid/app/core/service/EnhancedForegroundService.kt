@@ -7,6 +7,7 @@ import android.os.IBinder
 import android.util.Log
 import com.clawdroid.app.core.agent.BackgroundAgent
 import com.clawdroid.app.core.notifications.NotificationHelper
+import com.clawdroid.app.R
 
 /**
  * Enhanced foreground service that powers the background agent.
@@ -32,7 +33,7 @@ class EnhancedForegroundService : Service() {
         // Start foreground with dataSync type
         val notification = NotificationHelper.foregroundNotification(
             this,
-            "Background agent active — channels connected"
+            getString(R.string.general_fg_background_active)
         )
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
             startForeground(
@@ -81,7 +82,7 @@ class EnhancedForegroundService : Service() {
         Log.i(TAG, "Task removed from recents — keeping service alive")
         val notification = NotificationHelper.foregroundNotification(
             this,
-            "Agent running in background — tap to reopen"
+            getString(R.string.general_fg_running_background)
         )
         val manager = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
         manager.notify(NOTIFICATION_ID, notification)

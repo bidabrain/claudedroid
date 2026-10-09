@@ -1,5 +1,6 @@
 package com.clawdroid.app.core.channels
 
+import com.clawdroid.app.core.notifications.applyAppIcon
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -20,6 +21,7 @@ import com.clawdroid.app.core.engine.BackgroundAgentRunner
 import com.clawdroid.app.data.db.ClawDroidDatabase
 import com.clawdroid.app.data.db.ConversationEntity
 import kotlinx.coroutines.*
+import com.clawdroid.app.R
 
 class ClawNotificationListenerService : NotificationListenerService() {
 
@@ -134,7 +136,7 @@ class ClawNotificationListenerService : NotificationListenerService() {
                         ConversationEntity(
                             id = newId,
                             projectId = projectId,
-                            title = "WhatsApp Chat: $title",
+                            title = applicationContext.getString(R.string.general_wa_chat_title, title),
                             createdAt = System.currentTimeMillis(),
                             updatedAt = System.currentTimeMillis(),
                             status = "idle",
@@ -180,11 +182,11 @@ class ClawNotificationListenerService : NotificationListenerService() {
         )
 
         val notification = NotificationCompat.Builder(this, APPROVAL_CHANNEL)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("Reply to $sender?")
+            .applyAppIcon(this)
+            .setContentTitle(getString(R.string.general_wa_reply_to, sender))
             .setContentText(draft)
             .setStyle(NotificationCompat.BigTextStyle().bigText(draft))
-            .addAction(android.R.drawable.ic_menu_send, "Send Reply", approvePendingIntent)
+            .addAction(android.R.drawable.ic_menu_send, getString(R.string.general_wa_send_reply), approvePendingIntent)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
@@ -196,10 +198,10 @@ class ClawNotificationListenerService : NotificationListenerService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 APPROVAL_CHANNEL,
-                "WhatsApp Approval",
+                getString(R.string.general_wa_channel_name),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Ask for approval before sending WhatsApp replies"
+                description = getString(R.string.general_wa_channel_desc)
             }
             val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             nm.createNotificationChannel(channel)

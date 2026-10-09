@@ -1,5 +1,6 @@
 package com.clawdroid.app.ui.components
 
+import android.content.Context
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.infiniteRepeatable
@@ -24,9 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clawdroid.app.R
 
 /**
  * Claude-style thinking indicator showing dynamic processing messages
@@ -34,7 +37,7 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 fun ThinkingIndicator(
-    message: String = "Thinking...",
+    message: String = stringResource(R.string.chat_thinking_default),
     modifier: Modifier = Modifier
 ) {
     val dotAnimation = remember { Animatable(0f) }
@@ -74,7 +77,7 @@ fun ThinkingIndicator(
         ) {
             Icon(
                 imageVector = Icons.Rounded.AutoAwesome,
-                contentDescription = "Thinking",
+                contentDescription = stringResource(R.string.chat_cd_thinking),
                 modifier = Modifier
                     .padding(end = 8.dp)
                     .alpha(0.7f),
@@ -100,65 +103,65 @@ fun ThinkingIndicator(
 object DynamicThinkingPhrases {
     private val phases = listOf(
         // Analysis phase
-        "Analyzing...",
-        "Examining...",
-        "Reviewing...",
-        "Studying...",
+        R.string.chat_phrase_analyzing,
+        R.string.chat_phrase_examining,
+        R.string.chat_phrase_reviewing,
+        R.string.chat_phrase_studying,
 
         // Processing phase
-        "Processing...",
-        "Computing...",
-        "Evaluating...",
-        "Working on...",
+        R.string.chat_phrase_processing,
+        R.string.chat_phrase_computing,
+        R.string.chat_phrase_evaluating,
+        R.string.chat_phrase_working_on,
 
         // Generation phase
-        "Drafting...",
-        "Composing...",
-        "Creating...",
-        "Generating...",
+        R.string.chat_phrase_drafting,
+        R.string.chat_phrase_composing,
+        R.string.chat_phrase_creating,
+        R.string.chat_phrase_generating,
 
         // Refinement phase
-        "Refining...",
-        "Polishing...",
-        "Perfecting...",
-        "Optimizing...",
+        R.string.chat_phrase_refining,
+        R.string.chat_phrase_polishing,
+        R.string.chat_phrase_perfecting,
+        R.string.chat_phrase_optimizing,
 
         // Code-specific
-        "Debugging...",
-        "Building...",
-        "Compiling...",
-        "Testing...",
+        R.string.chat_phrase_debugging,
+        R.string.chat_phrase_building,
+        R.string.chat_phrase_compiling,
+        R.string.chat_phrase_testing,
 
         // Research-specific
-        "Searching...",
-        "Verifying...",
-        "Cross-referencing...",
-        "Checking..."
+        R.string.chat_phrase_searching,
+        R.string.chat_phrase_verifying,
+        R.string.chat_phrase_cross_referencing,
+        R.string.chat_phrase_checking
     )
 
     private var lastPhaseIndex = -1
 
-    fun nextPhrase(): String {
+    fun nextPhrase(context: Context): String {
         lastPhaseIndex = (lastPhaseIndex + 1) % phases.size
-        return phases[lastPhaseIndex]
+        return context.getString(phases[lastPhaseIndex])
     }
 
-    fun randomPhrase(): String = phases.random()
+    fun randomPhrase(context: Context): String = context.getString(phases.random())
 
-    fun phraseForContext(contextHint: String): String {
-        return when {
+    fun phraseForContext(context: Context, contextHint: String): String {
+        return context.getString(when {
             contextHint.contains("code", ignoreCase = true) -> 
-                listOf("Debugging...", "Compiling...", "Building...").random()
+                listOf(R.string.chat_phrase_debugging, R.string.chat_phrase_compiling, R.string.chat_phrase_building).random()
             contextHint.contains("search", ignoreCase = true) || 
             contextHint.contains("research", ignoreCase = true) ->
-                listOf("Searching...", "Verifying...", "Cross-referencing...").random()
+                listOf(R.string.chat_phrase_searching, R.string.chat_phrase_verifying, R.string.chat_phrase_cross_referencing).random()
             contextHint.contains("write", ignoreCase = true) || 
             contextHint.contains("generate", ignoreCase = true) ->
-                listOf("Drafting...", "Composing...", "Creating...").random()
+                listOf(R.string.chat_phrase_drafting, R.string.chat_phrase_composing, R.string.chat_phrase_creating).random()
             contextHint.contains("analyze", ignoreCase = true) ->
-                listOf("Analyzing...", "Examining...", "Studying...").random()
-            else -> randomPhrase()
-        }
+                listOf(R.string.chat_phrase_analyzing, R.string.chat_phrase_examining, R.string.chat_phrase_studying).random()
+            else -> phases.random()
+        })
     }
 
     fun reset() {

@@ -11,6 +11,8 @@ import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 
+private val CJK = Regex("[\u4e00-\u9fff]")
+
 class AndroidTtsEngine(private val context: Context) : TtsEngine {
 
     private val _state = MutableStateFlow(TtsEngineState.Idle)
@@ -21,6 +23,8 @@ class AndroidTtsEngine(private val context: Context) : TtsEngine {
 
     private var tts: TextToSpeech? = null
     private val speakFlag = AtomicBoolean(false)
+    private var voiceOption = "female"
+    private var voiceLanguage = "en"
 
     init {
         _state.value = TtsEngineState.Initializing
@@ -42,8 +46,15 @@ class AndroidTtsEngine(private val context: Context) : TtsEngine {
     }
 
     fun setVoiceProfile(voiceOption: String) {
+        this.voiceOption = voiceOption
+        applyVoice(voiceOption, voiceLanguage)
+    }
+
+    /** Picks a voice for [language] ("zh" or "en") matching the gender/pitch profile. */
+    private fun applyVoice(voiceOption: String, language: String) {
+        voiceLanguage = language
         tts?.let { engine ->
-            engine.language = Locale.US
+            engine.language = if (language == "zh") Locale.SIMPLIFIED_CHINESE else Locale.US
 
             val pitch = when (voiceOption) {
                 "female" -> 1.15f
@@ -71,7 +82,7 @@ class AndroidTtsEngine(private val context: Context) : TtsEngine {
 
                 if (isMale) {
                     val neuralMale = engine.voices?.firstOrNull { v ->
-                        v.locale.language == "en" &&
+                        v.locale.language == language &&
                             v.name.contains("male", ignoreCase = true) &&
                             (v.name.contains("neural", ignoreCase = true) ||
                                 v.name.contains("high", ignoreCase = true) ||
@@ -82,7 +93,7 @@ class AndroidTtsEngine(private val context: Context) : TtsEngine {
                         return@runCatching
                     }
                     val maleVoice = engine.voices?.firstOrNull { v ->
-                        v.locale.language == "en" && v.name.contains("male", ignoreCase = true)
+                        v.locale.language == language && v.name.contains("male", ignoreCase = true)
                     }
                     if (maleVoice != null) {
                         engine.voice = maleVoice
@@ -90,7 +101,7 @@ class AndroidTtsEngine(private val context: Context) : TtsEngine {
                     }
                 } else if (isFemale) {
                     val neuralFemale = engine.voices?.firstOrNull { v ->
-                        v.locale.language == "en" &&
+                        v.locale.language == language &&
                             v.name.contains("female", ignoreCase = true) &&
                             (v.name.contains("neural", ignoreCase = true) ||
                                 v.name.contains("high", ignoreCase = true) ||
@@ -101,7 +112,7 @@ class AndroidTtsEngine(private val context: Context) : TtsEngine {
                         return@runCatching
                     }
                     val femaleVoice = engine.voices?.firstOrNull { v ->
-                        v.locale.language == "en" && v.name.contains("female", ignoreCase = true)
+                        v.locale.language == language && v.name.contains("female", ignoreCase = true)
                     }
                     if (femaleVoice != null) {
                         engine.voice = femaleVoice
@@ -109,9 +120,9 @@ class AndroidTtsEngine(private val context: Context) : TtsEngine {
                     }
                 }
 
-                // Fallback: best offline English voice available
+                // Fallback: best offline voice for the language
                 val hqVoice = engine.voices?.firstOrNull { v ->
-                    v.locale.language == "en" && !v.isNetworkConnectionRequired
+                    v.locale.language == language && !v.isNetworkConnectionRequired
                 }
                 if (hqVoice != null) {
                     engine.voice = hqVoice
@@ -146,6 +157,8 @@ class AndroidTtsEngine(private val context: Context) : TtsEngine {
     }
 
     private fun doSpeak(text: String, onDone: (() -> Unit)?) {
+        val language = if (CJK.containsMatchIn(text)) "zh" else "en"
+        if (language != voiceLanguage) applyVoice(voiceOption, language)
         val utteranceId = UUID.randomUUID().toString()
         tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(uttId: String) {

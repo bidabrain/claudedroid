@@ -70,6 +70,8 @@ import com.clawdroid.app.core.voice.OpenAIRealtimeClient
 import com.clawdroid.app.core.voice.SpeechRecognizerClient
 import java.io.File
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import com.clawdroid.app.R
 
 @Composable
 fun AssistantOverlayView(
@@ -91,7 +93,7 @@ fun AssistantOverlayView(
     val realtimeClient = remember { OpenAIRealtimeClient() }
     var prompt by remember(invocation?.id) { mutableStateOf("") }
     var helperText by remember(invocation?.id) {
-        mutableStateOf("Ask about this screen or choose an action.")
+        mutableStateOf(context.getString(R.string.general_overlay_helper_default))
     }
 
     DisposableEffect(recognizer) {
@@ -111,6 +113,7 @@ fun AssistantOverlayView(
 
     val isActing = status.startsWith("Doing:")
     val isRunning = status != "Ready" && status != "Done" && status != "Error"
+    val workingText = stringResource(R.string.general_overlay_working)
     val screenshotPath = invocation?.contextSnapshot?.screenshotPath ?: invocation?.mediaPath
     val screenshotBitmap = remember(screenshotPath) {
         screenshotPath
@@ -128,7 +131,7 @@ fun AssistantOverlayView(
         if (isActing) {
             CompactStatusPill(
                 status = status,
-                shortLine = shortLine.ifBlank { "Working in the current app..." },
+                shortLine = shortLine.ifBlank { workingText },
                 pulseAlpha = pulseAlpha,
                 onStop = onStop,
                 onDismiss = onDismiss,
@@ -176,7 +179,12 @@ fun AssistantOverlayView(
                         )
                         Column {
                             Text(
-                                text = if (status == "Ready") "ClawDroid" else status,
+                                text = when (status) {
+                                    "Ready" -> "ClaudeDroid"
+                                    "Done" -> stringResource(R.string.general_overlay_status_done)
+                                    "Error" -> stringResource(R.string.general_overlay_status_error)
+                                    else -> status
+                                },
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.SemiBold,
                                     letterSpacing = 0.sp,
@@ -200,7 +208,7 @@ fun AssistantOverlayView(
                             IconButton(onClick = onStop, modifier = Modifier.size(36.dp)) {
                                 Icon(
                                     imageVector = Icons.Rounded.Stop,
-                                    contentDescription = "Stop assistant",
+                                    contentDescription = stringResource(R.string.general_overlay_stop_assistant),
                                     tint = MaterialTheme.colorScheme.error,
                                 )
                             }
@@ -208,7 +216,7 @@ fun AssistantOverlayView(
                         IconButton(onClick = onDismiss, modifier = Modifier.size(36.dp)) {
                             Icon(
                                 imageVector = Icons.Rounded.Close,
-                                contentDescription = "Dismiss",
+                                contentDescription = stringResource(R.string.general_dismiss),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
@@ -231,7 +239,7 @@ fun AssistantOverlayView(
 
                 AnimatedVisibility(visible = status == "Done") {
                     Text(
-                        text = "Ask a follow-up to continue this assistant session.",
+                        text = stringResource(R.string.general_overlay_follow_up),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -241,10 +249,10 @@ fun AssistantOverlayView(
                     value = prompt,
                     onValueChange = {
                         prompt = it
-                        helperText = "Ready when you are."
+                        helperText = context.getString(R.string.general_overlay_ready_helper)
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Ask about this screen") },
+                    placeholder = { Text(stringResource(R.string.general_overlay_placeholder)) },
                     singleLine = false,
                     maxLines = 3,
                     enabled = !isRunning,
@@ -275,7 +283,7 @@ fun AssistantOverlayView(
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Rounded.Send,
-                                contentDescription = "Send",
+                                contentDescription = stringResource(R.string.general_send),
                             )
                         }
                     },
@@ -287,7 +295,7 @@ fun AssistantOverlayView(
                 ) {
                     AnimatedVisibility(visible = isRunning) {
                         AssistantActionButton(
-                            label = "Stop",
+                            label = stringResource(R.string.general_stop),
                             icon = { Icon(Icons.Rounded.Stop, contentDescription = null) },
                             enabled = true,
                             onClick = {
@@ -298,25 +306,25 @@ fun AssistantOverlayView(
                     }
                     AssistantActionButton(
                         modifier = Modifier.weight(1f),
-                        label = "Voice",
+                        label = stringResource(R.string.general_overlay_voice),
                         icon = { Icon(Icons.Rounded.Mic, contentDescription = null) },
                         enabled = !isRunning,
                         onClick = {
                             Log.i(tag, "voice clicked invocationId=${invocation?.id}")
                             if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
                                 Log.w(tag, "voice blocked missing RECORD_AUDIO invocationId=${invocation?.id}")
-                                helperText = "Microphone permission is needed for voice input. You can still type."
+                                helperText = context.getString(R.string.general_overlay_mic_needed_voice)
                                 return@AssistantActionButton
                             }
-                            helperText = "Listening..."
+                            helperText = context.getString(R.string.general_voice_listening)
                             recognizer.startListening(
                                 onResult = { text ->
                                     Log.i(tag, "voice result invocationId=${invocation?.id} len=${text.length}")
                                     if (text.isNotBlank()) {
                                         prompt = text
-                                        helperText = "Voice captured. Edit or send."
+                                        helperText = context.getString(R.string.general_overlay_voice_captured)
                                     } else {
-                                        helperText = "No speech detected. Try again or type."
+                                        helperText = context.getString(R.string.general_overlay_no_speech)
                                     }
                                 },
                                 onError = { message ->
@@ -328,7 +336,7 @@ fun AssistantOverlayView(
                     )
                     AssistantActionButton(
                         modifier = Modifier.weight(1f),
-                        label = "Translate",
+                        label = stringResource(R.string.general_overlay_translate),
                         icon = { Icon(Icons.Rounded.Translate, contentDescription = null) },
                         enabled = !isRunning,
                         onClick = {
@@ -338,27 +346,27 @@ fun AssistantOverlayView(
                     )
                     AssistantActionButton(
                         modifier = Modifier.weight(1f),
-                        label = "Realtime",
+                        label = stringResource(R.string.general_overlay_realtime),
                         icon = { Icon(Icons.Rounded.GraphicEq, contentDescription = null) },
                         enabled = !isRunning,
                         onClick = {
                             Log.i(tag, "realtime clicked invocationId=${invocation?.id}")
                             if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
                                 Log.w(tag, "realtime blocked missing RECORD_AUDIO invocationId=${invocation?.id}")
-                                helperText = "Microphone permission is needed for realtime voice. You can still type."
+                                helperText = context.getString(R.string.general_overlay_mic_needed_realtime)
                                 return@AssistantActionButton
                             }
-                            helperText = "Preparing Realtime voice..."
+                            helperText = context.getString(R.string.general_overlay_preparing_realtime)
                             coroutineScope.launch {
                                 val result = realtimeClient.createClientSecret()
                                 helperText = result.fold(
                                     onSuccess = {
                                         Log.i(tag, "realtime token success invocationId=${invocation?.id}")
-                                        "Realtime voice is ready, but native audio transport is not connected in this build yet. Use Voice for speech-to-text."
+                                        context.getString(R.string.general_overlay_realtime_ready)
                                     },
                                     onFailure = { error ->
                                         Log.e(tag, "realtime token failed invocationId=${invocation?.id}", error)
-                                        "Realtime voice unavailable: ${error.message ?: "token request failed"}. Use Voice or type instead."
+                                        context.getString(R.string.general_overlay_realtime_unavailable, error.message ?: context.getString(R.string.general_overlay_token_failed))
                                     },
                                 )
                             }
@@ -418,14 +426,14 @@ private fun CompactStatusPill(
             IconButton(onClick = onStop, modifier = Modifier.size(32.dp)) {
                 Icon(
                     imageVector = Icons.Rounded.Stop,
-                    contentDescription = "Stop assistant",
+                    contentDescription = stringResource(R.string.general_overlay_stop_assistant),
                     tint = MaterialTheme.colorScheme.error,
                 )
             }
             IconButton(onClick = onDismiss, modifier = Modifier.size(32.dp)) {
                 Icon(
                     imageVector = Icons.Rounded.Close,
-                    contentDescription = "Dismiss",
+                    contentDescription = stringResource(R.string.general_dismiss),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -450,7 +458,7 @@ private fun ScreenPreview(
         if (screenshotBitmap != null) {
             Image(
                 bitmap = screenshotBitmap,
-                contentDescription = "Current screen screenshot",
+                contentDescription = stringResource(R.string.general_overlay_screenshot_cd),
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(screenshotBitmap.width.toFloat() / screenshotBitmap.height.toFloat()),
@@ -458,18 +466,19 @@ private fun ScreenPreview(
             )
         } else {
             val fallbackText = visibleText.ifBlank { contentDescriptionText }
+            val noScreenshotText = stringResource(R.string.general_overlay_no_screenshot)
             Column(
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Text(
-                    text = "Current screen",
+                    text = stringResource(R.string.general_overlay_current_screen),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
-                    text = fallbackText.ifBlank { "No screenshot was available. I can still use visible screen text when present." }.take(220),
+                    text = fallbackText.ifBlank { noScreenshotText }.take(220),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

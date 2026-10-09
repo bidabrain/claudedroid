@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shared -->
+    <string name="config_back">Back</string>
+    <string name="config_cancel">Cancel</string>
+    <string name="config_cancel_caps">CANCEL</string>
+    <string name="config_create_caps">CREATE</string>
+    <string name="config_save_caps">SAVE</string>
+    <string name="config_reset_caps">RESET</string>
+    <string name="config_done">Done</string>
+    <string name="config_loading">Loading...</string>
+    <string name="config_modified">Modified %1$s</string>
+    <string name="config_file_saved_toast">%1$s saved</string>
+
+    <!-- Channels config screen -->
+    <string name="config_channels_title">Connected Channels</string>
+    <string name="config_channels_connected_header">Connected Channels</string>
+    <string name="config_channels_available_header">Available Channels</string>
+    <string name="config_channels_status_connected">Connected</string>
+    <string name="config_channels_status_not_connected">Not connected</string>
+    <string name="config_channels_whatsapp_desc">Receive messages and respond via WhatsApp using WaCLI</string>
+    <string name="config_channels_telegram_desc">Receive Telegram messages and send responses</string>
+    <string name="config_channels_telegram_connected_as">Connected as @clawdroid_bot</string>
+    <string name="config_channels_slack_desc">Integrate with Slack workspace for team collaboration</string>
+    <string name="config_channels_slack_connected">Connected to Workspace</string>
+    <string name="config_channels_slack_connected_lower">Connected to workspace</string>
+    <string name="config_channels_discord_desc">Connect to Discord server for community interaction</string>
+    <string name="config_channels_email_desc">Send and receive emails through configured account</string>
+    <string name="config_channels_webhook_desc">Generic webhook for any HTTP service integration</string>
+    <string name="config_channels_qr_title">%1$s %2$s - QR Code</string>
+    <string name="config_channels_disconnect">Disconnect</string>
+    <string name="config_channels_connect">Connect</string>
+    <string name="config_channels_setup_instructions">Setup Instructions:</string>
+    <string name="config_channels_whatsapp_steps">1. Install WaCLI\n2. Scan QR code to authenticate\n3. Grant permissions</string>
+    <string name="config_channels_show_qr">Show QR Code</string>
+    <string name="config_channels_bot_token">Bot Token</string>
+    <string name="config_channels_authorize_slack">Authorize with Slack</string>
+    <string name="config_channels_server_id">Server ID (Guild ID)</string>
+    <string name="config_channels_email_address">Email Address</string>
+    <string name="config_channels_app_password">App Password / Token</string>
+    <string name="config_channels_webhook_url">Webhook URL</string>
+    <string name="config_channels_webhook_endpoint">Your webhook endpoint:\n%1$s</string>
+    <string name="config_channels_qr_code">QR Code</string>
+    <string name="config_channels_qr_scan_hint">Scan this QR code with your mobile device to authenticate</string>
+
+    <!-- Skills screen -->
+    <string name="config_skills_title">Skills</string>
+    <string name="config_skills_create_cd">Create skill</string>
+    <string name="config_skills_settings_header">Skill Settings</string>
+    <string name="config_skills_heartbeat_title">Autonomous Heartbeat</string>
+    <string name="config_skills_heartbeat_desc">Run checklist tasks from %1$s</string>
+    <string name="config_skills_interval_minutes">Interval minutes</string>
+    <string name="config_skills_empty_title">No skills installed</string>
+    <string name="config_skills_empty_desc">Create a markdown skill to add behavior to the agent.</string>
+    <string name="config_skills_create">Create Skill</string>
+    <string name="config_skills_reset_toast">Starter skill reset</string>
+    <string name="config_skills_saved_toast">Skill saved</string>
+    <string name="config_skills_reset_cd">Reset starter skill</string>
+
+    <!-- Workspace files screen -->
+    <string name="config_workspace_title">Workspace Files</string>
+    <string name="config_workspace_header">Agent Workspace</string>
+
+    <!-- Config editor screen -->
+    <string name="config_editor_label_agents">%1$s — Agent Instructions</string>
+    <string name="config_editor_label_sould">%1$s — Agent Identity</string>
+    <string name="config_editor_edit_file">Edit %1$s</string>
+    <string name="config_editor_storage_note">Changes are saved to the app\'s internal storage. The agent reads these files at startup.</string>
+    <string name="config_editor_placeholder"># Enter markdown content...</string>
+    <string name="config_editor_save_changes">Save Changes</string>
+
+    <!-- Terminal screen -->
+    <string name="config_terminal_title">Terminal</string>
+    <string name="config_terminal_clear">Clear</string>
+    <string name="config_terminal_error">Error: %1$s</string>
+    <string name="config_terminal_unknown">Unknown</string>
+    <string name="config_terminal_empty_title">Interactive Terminal</string>
+    <string name="config_terminal_empty_desc">Type a command below to run it.</string>
+    <string name="config_terminal_exit_ok">✓ Exit: %1$s</string>
+    <string name="config_terminal_exit_fail">✗ Exit: %1$s</string>
+    <string name="config_terminal_running">Running...</string>
+    <string name="config_terminal_placeholder">Type a command...</string>
+    <string name="config_terminal_run">Run</string>
+
+    <!-- MCP status row -->
+    <string name="config_mcp_row_stop">Stop</string>
+    <string name="config_mcp_row_start">Start</string>
+    <string name="config_mcp_row_restart">Restart</string>
+    <string name="config_mcp_row_remove">Remove</string>
+
+    <!-- Channel status card -->
+    <string name="config_channel_card_connected">Connected</string>
+    <string name="config_channel_card_connecting">Connecting...</string>
+    <string name="config_channel_card_disconnected">Disconnected</string>
+    <string name="config_channel_card_error">Error</string>
+    <string name="config_channel_card_settings">Settings</string>
+
+    <!-- Piper download dialog -->
+    <string name="config_piper_downloading">Downloading Voice Model</string>
+    <string name="config_piper_ready">Ready!</string>
+    <string name="config_piper_setting_up">Setting up Piper neural TTS engine…</string>
+    <string name="config_piper_ready_desc">Piper neural TTS is ready to use.</string>
+
+    <!-- Setup wizard -->
+    <string name="config_wizard_next">Next</string>
+    <string name="config_wizard_complete_setup">Complete Setup</string>
+</resources>

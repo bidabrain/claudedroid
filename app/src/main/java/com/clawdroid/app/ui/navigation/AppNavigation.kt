@@ -23,7 +23,6 @@ import com.clawdroid.app.ui.settings.SkillsScreen
 import com.clawdroid.app.ui.settings.WorkspaceFilesScreen
 import com.clawdroid.app.ui.setup.PostSetupScreen
 import com.clawdroid.app.ui.splash.SplashScreen
-import com.clawdroid.app.ui.splash.HatchingScreen
 import com.clawdroid.app.ui.terminal.TerminalScreen
 
 @Composable
@@ -51,24 +50,9 @@ fun AppNavHost(
         composable(NavRoutes.Splash.route) {
             SplashScreen(
                 onSplashComplete = {
-                    if (AppConfigManager.hasSeenHatching) {
-                        navController.navigate(NavRoutes.Chat.route) {
-                            popUpTo(NavRoutes.Splash.route) { inclusive = true }
-                        }
-                    } else {
-                        navController.navigate(NavRoutes.Hatching.route) {
-                            popUpTo(NavRoutes.Splash.route) { inclusive = true }
-                        }
-                    }
-                },
-            )
-        }
-
-        composable(NavRoutes.Hatching.route) {
-            HatchingScreen(
-                onComplete = {
-                    navController.navigate(NavRoutes.PostSetup.route) {
-                        popUpTo(NavRoutes.Hatching.route) { inclusive = true }
+                    val next = if (AppConfigManager.isSetupComplete) NavRoutes.Chat else NavRoutes.PostSetup
+                    navController.navigate(next.route) {
+                        popUpTo(NavRoutes.Splash.route) { inclusive = true }
                     }
                 },
             )
@@ -77,6 +61,7 @@ fun AppNavHost(
         composable(NavRoutes.PostSetup.route) {
             PostSetupScreen(
                 onComplete = {
+                    AppConfigManager.isSetupComplete = true
                     navController.navigate(NavRoutes.Chat.route) {
                         popUpTo(NavRoutes.PostSetup.route) { inclusive = true }
                     }

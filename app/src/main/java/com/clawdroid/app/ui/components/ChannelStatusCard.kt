@@ -36,6 +36,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import com.clawdroid.app.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.clawdroid.app.ui.theme.EmberOrange
@@ -130,10 +132,10 @@ fun ChannelStatusCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         when (status) {
-                            ChannelConnectionStatus.Connected -> "Connected"
-                            ChannelConnectionStatus.Connecting -> "Connecting..."
-                            ChannelConnectionStatus.Disconnected -> "Disconnected"
-                            ChannelConnectionStatus.Error -> "Error"
+                            ChannelConnectionStatus.Connected -> stringResource(R.string.config_channel_card_connected)
+                            ChannelConnectionStatus.Connecting -> stringResource(R.string.config_channel_card_connecting)
+                            ChannelConnectionStatus.Disconnected -> stringResource(R.string.config_channel_card_disconnected)
+                            ChannelConnectionStatus.Error -> stringResource(R.string.config_channel_card_error)
                         },
                         color = statusColor,
                         style = MaterialTheme.typography.bodySmall,
@@ -155,7 +157,7 @@ fun ChannelStatusCard(
                 }
             }
             IconButton(onClick = onSettings, modifier = Modifier.size(32.dp)) {
-                Icon(Icons.Default.Settings, contentDescription = "Settings", tint = MutedGray, modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.config_channel_card_settings), tint = MutedGray, modifier = Modifier.size(18.dp))
             }
         }
     }

@@ -24,7 +24,9 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.clawdroid.app.R
 
 /**
  * Message action bar with copy, read aloud, and rethink buttons
@@ -54,7 +56,7 @@ fun MessageActionsBar(
         // Copy button
         ActionIconButton(
             icon = Icons.Rounded.ContentCopy,
-            contentDescription = "Copy",
+            contentDescription = stringResource(R.string.chat_cd_copy),
             onClick = {
                 clipboardManager.setText(AnnotatedString(messageText))
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -65,7 +67,7 @@ fun MessageActionsBar(
         if (onReadAloud != null) {
             ActionIconButton(
                 icon = Icons.Rounded.VolumeUp,
-                contentDescription = if (isAlreadyReading) "Stop reading" else "Read aloud",
+                contentDescription = if (isAlreadyReading) stringResource(R.string.chat_cd_stop_reading) else stringResource(R.string.chat_cd_read_aloud),
                 onClick = {
                     onReadAloud()
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -78,7 +80,7 @@ fun MessageActionsBar(
         if (onRethink != null) {
             ActionIconButton(
                 icon = Icons.Rounded.Refresh,
-                contentDescription = "Regenerate",
+                contentDescription = stringResource(R.string.chat_cd_regenerate),
                 onClick = {
                     onRethink()
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)

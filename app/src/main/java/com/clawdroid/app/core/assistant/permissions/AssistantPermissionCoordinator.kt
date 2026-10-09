@@ -123,7 +123,7 @@ object AssistantPermissionCoordinator {
                     PermissionBlockedResult(
                         capability = capability,
                         title = "Default Assistant Required",
-                        message = "ClawDroid is not your default assistant yet. Set it as the assistant to invoke it from anywhere.",
+                        message = "ClaudeDroid is not your default assistant yet. Set it as the assistant to invoke it from anywhere.",
                         recoveryAction = PermissionRecoveryAction.REQUEST_ROLE
                     )
                 } else null
@@ -133,7 +133,7 @@ object AssistantPermissionCoordinator {
                     PermissionBlockedResult(
                         capability = capability,
                         title = "Display Over Other Apps Required",
-                        message = "ClawDroid needs overlay permission to display the assistant overlay. Without it, I can continue in the main chat.",
+                        message = "ClaudeDroid needs overlay permission to display the assistant overlay. Without it, I can continue in the main chat.",
                         recoveryAction = PermissionRecoveryAction.OPEN_OVERLAY_SETTINGS
                     )
                 } else null
@@ -143,7 +143,7 @@ object AssistantPermissionCoordinator {
                     PermissionBlockedResult(
                         capability = capability,
                         title = "Accessibility Service Required",
-                        message = "I need ClawDroid Screen Control accessibility service to read and tap the screen for you. Enable it in Settings.",
+                        message = "I need ClaudeDroid Screen Control accessibility service to read and tap the screen for you. Enable it in Settings.",
                         recoveryAction = PermissionRecoveryAction.OPEN_ACCESSIBILITY_SETTINGS
                     )
                 } else null
@@ -183,7 +183,7 @@ object AssistantPermissionCoordinator {
                     PermissionBlockedResult(
                         capability = capability,
                         title = "Ignore Battery Optimizations Required",
-                        message = "Allow ClawDroid to run in the background without battery limits to execute longer tasks.",
+                        message = "Allow ClaudeDroid to run in the background without battery limits to execute longer tasks.",
                         recoveryAction = PermissionRecoveryAction.OPEN_BATTERY_SETTINGS
                     )
                 } else null

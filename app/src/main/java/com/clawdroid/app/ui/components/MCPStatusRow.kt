@@ -37,6 +37,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import com.clawdroid.app.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -132,20 +134,20 @@ fun MCPStatusRow(
                     when (server.status) {
                         ServerStatus.Running, ServerStatus.Starting -> {
                             IconButton(onClick = onStop, modifier = Modifier.size(32.dp)) {
-                                Icon(Icons.Default.Stop, contentDescription = "Stop", tint = Color(0xFFFF5252), modifier = Modifier.size(18.dp))
+                                Icon(Icons.Default.Stop, contentDescription = stringResource(R.string.config_mcp_row_stop), tint = Color(0xFFFF5252), modifier = Modifier.size(18.dp))
                             }
                         }
                         ServerStatus.Stopped, ServerStatus.Error -> {
                             IconButton(onClick = onStart, modifier = Modifier.size(32.dp)) {
-                                Icon(Icons.Default.PlayArrow, contentDescription = "Start", tint = NeonCyan, modifier = Modifier.size(18.dp))
+                                Icon(Icons.Default.PlayArrow, contentDescription = stringResource(R.string.config_mcp_row_start), tint = NeonCyan, modifier = Modifier.size(18.dp))
                             }
                         }
                     }
                     IconButton(onClick = onRestart, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Restart", tint = EmberOrange, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.config_mcp_row_restart), tint = EmberOrange, modifier = Modifier.size(18.dp))
                     }
                     IconButton(onClick = onRemove, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Default.Delete, contentDescription = "Remove", tint = MutedGray, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.config_mcp_row_remove), tint = MutedGray, modifier = Modifier.size(18.dp))
                     }
                 }
             }

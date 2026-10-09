@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
+import com.clawdroid.app.R
 
 data class DownloadProgress(
     val engineName: String,
@@ -71,7 +72,7 @@ class TtsEngineManager(private val context: Context) {
         engineList.add(TtsEngineInfo(
             id = "device",
             name = "Android TTS",
-            description = "Built-in system TTS (offline)",
+            description = context.getString(R.string.general_tts_desc_device),
             isAvailable = true,
             requiresApiKey = false,
             hasApiKey = true
@@ -82,7 +83,7 @@ class TtsEngineManager(private val context: Context) {
         engineList.add(TtsEngineInfo(
             id = "piper",
             name = "Piper",
-            description = "Local, offline, high-quality TTS",
+            description = context.getString(R.string.general_tts_desc_piper),
             isAvailable = piperEngine.isInstalled,
             isDownloading = piperEngine.isDownloading,
             downloadProgress = piperEngine.downloadProgress.value,
@@ -95,7 +96,7 @@ class TtsEngineManager(private val context: Context) {
         engineList.add(TtsEngineInfo(
             id = "kokoro",
             name = "Kokoro",
-            description = "Fast, local multilingual TTS",
+            description = context.getString(R.string.general_tts_desc_kokoro),
             isAvailable = kokoroAvailable,
             requiresApiKey = false,
             hasApiKey = true
@@ -106,7 +107,7 @@ class TtsEngineManager(private val context: Context) {
         engineList.add(TtsEngineInfo(
             id = "openai",
             name = "OpenAI TTS",
-            description = "Premium voices (alloy, echo, fable, onyx, nova, shimmer)",
+            description = context.getString(R.string.general_tts_desc_openai),
             isAvailable = openaiKey.isNotBlank(),
             requiresApiKey = true,
             hasApiKey = openaiKey.isNotBlank()
@@ -117,7 +118,7 @@ class TtsEngineManager(private val context: Context) {
         engineList.add(TtsEngineInfo(
             id = "elevenlabs",
             name = "ElevenLabs",
-            description = "Premium neural voices (Rachel, Domi, Josh...)",
+            description = context.getString(R.string.general_tts_desc_elevenlabs),
             isAvailable = elevenlabsKey.isNotBlank(),
             requiresApiKey = true,
             hasApiKey = elevenlabsKey.isNotBlank()
@@ -128,7 +129,7 @@ class TtsEngineManager(private val context: Context) {
         engineList.add(TtsEngineInfo(
             id = "deepgram",
             name = "Deepgram",
-            description = "12 voices: Asteria, Luna, Orion, Zeus...",
+            description = context.getString(R.string.general_tts_desc_deepgram),
             isAvailable = deepgramKey.isNotBlank(),
             requiresApiKey = true,
             hasApiKey = deepgramKey.isNotBlank()
@@ -137,8 +138,8 @@ class TtsEngineManager(private val context: Context) {
         // Free Cloud TTS - always available (uses Google Translate API, no key needed)
         engineList.add(TtsEngineInfo(
             id = "freecloud",
-            name = "Free Cloud TTS",
-            description = "Free, cloud-based, natural voice (no API key)",
+            name = context.getString(R.string.general_tts_name_freecloud),
+            description = context.getString(R.string.general_tts_desc_freecloud),
             isAvailable = true,
             requiresApiKey = false,
             hasApiKey = true
@@ -187,7 +188,7 @@ class TtsEngineManager(private val context: Context) {
                 bytesDownloaded = 0,
                 totalBytes = 0,
                 isComplete = false,
-                errorMessage = "Engine not found"
+                errorMessage = context.getString(R.string.general_tts_engine_not_found)
             ))
             return@flow
         }
@@ -250,7 +251,7 @@ class TtsEngineManager(private val context: Context) {
             ?: TtsEngineInfo(
                 id = "device",
                 name = "Android TTS",
-                description = "Built-in system TTS (offline)",
+                description = context.getString(R.string.general_tts_desc_device),
                 isAvailable = true,
                 requiresApiKey = false,
                 hasApiKey = true
@@ -267,7 +268,7 @@ class TtsEngineManager(private val context: Context) {
             ?: TtsEngineInfo(
                 id = "device",
                 name = "Android TTS",
-                description = "Built-in system TTS (offline)",
+                description = context.getString(R.string.general_tts_desc_device),
                 isAvailable = true,
                 requiresApiKey = false,
                 hasApiKey = true

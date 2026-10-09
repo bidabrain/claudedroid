@@ -81,7 +81,7 @@ object DefaultSkillCatalog {
             id = "cli-troubleshooter",
             title = "CLI Troubleshooter",
             sourceUrl = "https://github.com/VoltAgent/awesome-openclaw-skills#cli-utilities",
-            category = "Starter / ClawDroid",
+            category = "Starter / ClaudeDroid",
             body = """
                 Use this skill when a terminal command, package install, build, or script fails.
 
@@ -92,9 +92,9 @@ object DefaultSkillCatalog {
             id = "android-sandbox-toolbox",
             title = "Android Sandbox Toolbox",
             sourceUrl = "https://github.com/VoltAgent/awesome-openclaw-skills#cli-utilities",
-            category = "Starter / ClawDroid",
+            category = "Starter / ClaudeDroid",
             body = """
-                Use this skill for Android-device or ClawDroid sandbox tasks.
+                Use this skill for Android-device or ClaudeDroid sandbox tasks.
 
                 Prefer app-internal storage for agent files, request Android permissions only through UI flows, use accessibility/screen-capture tools only when enabled, and explain when a phone-level permission is blocking the requested action.
             """.trimIndent(),

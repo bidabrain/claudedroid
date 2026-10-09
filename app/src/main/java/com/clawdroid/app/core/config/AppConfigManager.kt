@@ -14,7 +14,14 @@ object AppConfigManager {
     private var prefs: SharedPreferences? = null
 
     fun init(context: Context) {
-        prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).also { prefs ->
+            // LLM settings used to be editable and were stored here in plain text; they now come
+            // from BuildConfig, so drop any leftover copy of the old key.
+            val legacy = listOf("api_key", "base_url", "model", "provider", "provider_dialect")
+            if (legacy.any(prefs::contains)) {
+                prefs.edit().apply { legacy.forEach(::remove) }.apply()
+            }
+        }
     }
 
     private val p: SharedPreferences get() = prefs!!
@@ -95,7 +102,7 @@ object AppConfigManager {
     const val KEY_ULTRA_AGENT_ENABLED = "ultra_agent_enabled"
 
     var agentName: String
-        get() = p.getString(KEY_AGENT_NAME, "Nova") ?: "Nova"
+        get() = p.getString(KEY_AGENT_NAME, "Claude") ?: "Claude"
         set(value) = p.edit().putString(KEY_AGENT_NAME, value).apply()
 
     var agentPersonality: String
@@ -176,7 +183,8 @@ object AppConfigManager {
         get() = p.getBoolean("permissions_asked", false)
         set(value) = p.edit().putBoolean("permissions_asked", value).apply()
 
-    var hasSeenHatching: Boolean
+    // Pref key kept from the old hatching flow so existing installs skip first-run setup.
+    var isSetupComplete: Boolean
         get() = p.getBoolean("has_seen_hatching", false)
         set(value) = p.edit().putBoolean("has_seen_hatching", value).apply()
 

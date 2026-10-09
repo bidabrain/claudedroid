@@ -103,7 +103,7 @@ class LlmApiClient(
             setRequestProperty("Content-Type", "application/json")
             setRequestProperty("Accept", "text/event-stream")
             setRequestProperty("HTTP-Referer", "https://clawdroid.local")
-            setRequestProperty("X-Title", "ClawDroid")
+            setRequestProperty("X-Title", "ClaudeDroid")
         }
 
         Log.d("LlmApiClient", "HTTP connection opened to $baseUrl/chat/completions")

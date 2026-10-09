@@ -99,7 +99,7 @@ suspend fun checkAndRequestStoragePermission(context: Context, path: String): Bo
     }
 
     Handler(Looper.getMainLooper()).post {
-        Toast.makeText(context, "ClawDroid: Storage Permission Required", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, "ClaudeDroid: Storage Permission Required", Toast.LENGTH_LONG).show()
     }
     if (android.os.Build.VERSION.SDK_INT >= 30) {
         try {

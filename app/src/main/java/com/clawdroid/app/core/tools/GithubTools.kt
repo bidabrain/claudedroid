@@ -18,7 +18,7 @@ object GithubTools {
         return mapOf(
             "Authorization" to "Bearer $token",
             "Accept" to "application/vnd.github.v3+json",
-            "User-Agent" to "ClawDroid-App",
+            "User-Agent" to "ClaudeDroid-App",
             "Content-Type" to "application/json"
         )
     }

@@ -10,6 +10,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipInputStream
+import com.clawdroid.app.R
 
 data class BootstrapProgress(
     val stage: String,
@@ -46,31 +47,31 @@ object BootstrapManager {
             )
         }
 
-        onProgress(BootstrapProgress("Downloading", "Fetching Termux bootstrap"))
+        onProgress(BootstrapProgress(context.getString(R.string.general_bootstrap_stage_downloading), context.getString(R.string.general_bootstrap_fetching)))
         val archive = File(context.cacheDir, "bootstrap-aarch64.zip")
-        downloadBootstrap(archive, onProgress)
+        downloadBootstrap(context, archive, onProgress)
 
-        onProgress(BootstrapProgress("Extracting", "Unpacking Linux runtime"))
+        onProgress(BootstrapProgress(context.getString(R.string.general_bootstrap_stage_extracting), context.getString(R.string.general_bootstrap_unpacking)))
         val staging = File(context.filesDir, "usr-bootstrap")
         staging.deleteRecursively()
         check(staging.mkdirs()) { "Unable to create ${staging.absolutePath}" }
         extractBootstrap(archive, staging)
 
-        onProgress(BootstrapProgress("Linking", "Rebuilding bootstrap symlinks"))
+        onProgress(BootstrapProgress(context.getString(R.string.general_bootstrap_stage_linking), context.getString(R.string.general_bootstrap_rebuilding_symlinks)))
         restoreSymlinks(staging, env.prefix)
 
-        onProgress(BootstrapProgress("Preparing", "Patching paths, permissions, and apt sources"))
+        onProgress(BootstrapProgress(context.getString(R.string.general_bootstrap_stage_preparing), context.getString(R.string.general_bootstrap_patching)))
         patchTermuxShebangs(staging, env.prefix)
         applyPermissions(staging)
         writeAptSources(staging, env.prefix)
 
-        onProgress(BootstrapProgress("Installing", "Moving runtime into place"))
+        onProgress(BootstrapProgress(context.getString(R.string.general_bootstrap_stage_installing), context.getString(R.string.general_bootstrap_moving)))
         env.prefix.deleteRecursively()
         check(staging.renameTo(env.prefix)) {
             "Unable to move ${staging.absolutePath} to ${env.prefix.absolutePath}"
         }
 
-        onProgress(BootstrapProgress("Verifying", "Running bash probe"))
+        onProgress(BootstrapProgress(context.getString(R.string.general_bootstrap_stage_verifying), context.getString(R.string.general_bootstrap_bash_probe)))
         val output = buildString {
             append(runBashProbe(env))
             append("\n\n")
@@ -131,6 +132,7 @@ object BootstrapManager {
     }
 
     private fun downloadBootstrap(
+        context: Context,
         destination: File,
         onProgress: (BootstrapProgress) -> Unit,
     ) {
@@ -195,11 +197,11 @@ object BootstrapManager {
                         downloaded += read
                         if (downloaded >= nextReportAt) {
                             val detail = if (total != null) {
-                                "${downloaded / 1_000_000} MB / ${total / 1_000_000} MB"
+                                context.getString(R.string.general_bootstrap_progress_mb_total, downloaded / 1_000_000, total / 1_000_000)
                             } else {
-                                "${downloaded / 1_000_000} MB"
+                                context.getString(R.string.general_bootstrap_progress_mb, downloaded / 1_000_000)
                             }
-                            onProgress(BootstrapProgress("Downloading", detail))
+                            onProgress(BootstrapProgress(context.getString(R.string.general_bootstrap_stage_downloading), detail))
                             nextReportAt = downloaded + 2_000_000L
                         }
                     }

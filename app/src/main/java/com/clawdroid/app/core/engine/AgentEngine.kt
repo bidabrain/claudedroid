@@ -75,14 +75,14 @@ class AgentEngine(
         val prompt = buildString {
             val snapshot = invocation.contextSnapshot
             appendLine("Assistant invocation context:")
-            appendLine("- This request came from the user's current active Android screen at the moment ClawDroid was invoked.")
+            appendLine("- This request came from the user's current active Android screen at the moment ClaudeDroid was invoked.")
             appendLine("- If an image is attached, it is the current screen. Treat it as live device context, not as a random image upload.")
             appendLine("- For speed, screenshots are attached only when visual details are likely needed. Otherwise use get_screen first.")
             appendLine("- If the user asks to do something in the current app, start from the current screen. Do not open the app again unless the screen has changed or you need a different app.")
             appendLine("- If the user asks to send a specific message in the current Telegram/WhatsApp/chat screen, call send_message_in_current_chat immediately. Do not call get_screen or screenshot first.")
             appendLine("- Use Android screen-control tools when useful. For app actions, call get_screen first, then prefer perform_android_actions to batch multiple taps/typing/waits in one tool call.")
             appendLine("- Do not verify after every tiny action. Verify after important state changes, after failures, and at task completion.")
-            appendLine("- The ClawDroid overlay is temporarily hidden automatically before get_screen, screenshot, taps, swipes, and typing so your vision/actions target the real app underneath.")
+            appendLine("- The ClaudeDroid overlay is temporarily hidden automatically before get_screen, screenshot, taps, swipes, and typing so your vision/actions target the real app underneath.")
             appendLine("- For screenshots and get_screen, the overlay is hidden for about 3 seconds before capture. Do not compensate for the overlay in coordinates.")
             if (snapshot != null) {
                 appendLine("- Source package: ${snapshot.sourcePackage ?: "unknown"}")

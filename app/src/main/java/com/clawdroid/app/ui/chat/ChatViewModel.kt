@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.clawdroid.app.R
 import com.clawdroid.app.core.AppContainer
 import com.clawdroid.app.core.config.AppConfigManager
 import com.clawdroid.app.core.engine.AgentEngine
@@ -85,7 +86,7 @@ class ChatViewModel(
         if (uiState.isInitialized) return
         viewModelScope.launch {
             val allConversations = db.conversations().observeConversations().first()
-            val latest = allConversations.firstOrNull()
+            val latest = allConversations.maxByOrNull { it.updatedAt }
             if (latest != null) {
                 setConversation(latest.id)
             } else {
@@ -403,7 +404,7 @@ class ChatViewModel(
                     val q = text.substringAfter("call", "")
                         .substringAfter("dial", "").trim().removeSuffix(".")
                     if (q.isNotEmpty()) {
-                        Toast.makeText(context, "Calling $q...", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, context.getString(R.string.chat_toast_calling, q), Toast.LENGTH_LONG).show()
                         context.startActivity(Intent(Intent.ACTION_DIAL).apply {
                             data = Uri.parse("tel:${Uri.encode(q)}")
                             flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -411,21 +412,21 @@ class ChatViewModel(
                     }
                 }
                 lower.contains("alarm") || lower.contains("set alarm") -> {
-                    Toast.makeText(context, "Opening Alarm...", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, context.getString(R.string.chat_toast_opening_alarm_short), Toast.LENGTH_LONG).show()
                     context.startActivity(Intent(AlarmClock.ACTION_SET_ALARM).apply {
-                        putExtra(AlarmClock.EXTRA_MESSAGE, "ClawDroid Alarm")
+                        putExtra(AlarmClock.EXTRA_MESSAGE, context.getString(R.string.chat_alarm_label_short))
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     })
                 }
                 lower.contains("remind") -> {
-                    NotificationHelper.sendAgentNotification(context, "Reminder", text)
+                    NotificationHelper.sendAgentNotification(context, context.getString(R.string.chat_notification_reminder), text)
                 }
                 lower.contains("save note") || lower.contains("write down") -> {
-                    NotificationHelper.sendAgentNotification(context, "Note Saved", text)
+                    NotificationHelper.sendAgentNotification(context, context.getString(R.string.chat_notification_note_saved), text)
                 }
             }
         } catch (_: Exception) {
-            Toast.makeText(context, "Command: $text", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.chat_toast_command, text), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -434,7 +435,6 @@ class ChatViewModel(
             == PackageManager.PERMISSION_GRANTED
         ) {
             uiState = uiState.copy(isCallModeActive = true, isCallMuted = false)
-            ServiceManager.start(context)
             startVoiceLoop()
         } else {
             requestPermission(Manifest.permission.RECORD_AUDIO)

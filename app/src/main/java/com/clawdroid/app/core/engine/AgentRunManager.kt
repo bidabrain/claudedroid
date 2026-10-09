@@ -3,7 +3,6 @@ package com.clawdroid.app.core.engine
 import android.content.Context
 import android.util.Log
 import com.clawdroid.app.core.config.AppConfigManager
-import com.clawdroid.app.core.service.ServiceManager
 import com.clawdroid.app.data.db.ClawDroidDatabase
 import com.clawdroid.app.data.db.ConversationEntity
 import com.clawdroid.app.data.db.MessageEntity
@@ -14,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.json.JSONArray
 import org.json.JSONObject
+import com.clawdroid.app.R
 
 class ConversationRunState(
     val conversationId: String,
@@ -33,6 +33,9 @@ object AgentRunManager {
     
     val activeRuns = MutableStateFlow<Map<String, ConversationRunState>>(emptyMap())
     private var appContext: Context? = null
+
+    private fun str(resId: Int, fallback: String, vararg args: Any): String =
+        appContext?.getString(resId, *args) ?: fallback
 
     val events = MutableSharedFlow<Pair<String, AgentRunEvent>>(extraBufferCapacity = 64)
 
@@ -68,10 +71,6 @@ object AgentRunManager {
         val appCtx = context.applicationContext
         appContext = appCtx
         
-        if (!AppConfigManager.ultraAgentEnabled) {
-            ServiceManager.start(appCtx)
-        }
-        
         val engine = AgentEngine(appCtx, projectId = AppConfigManager.activeProjectId)
         val initialMessage = AgentChatItem(text = "", streaming = true)
         
@@ -102,16 +101,13 @@ object AgentRunManager {
                     }
             } catch (e: Exception) {
                 Log.e(TAG, "Background run failed for $conversationId", e)
-                handleFailure(conversationId, e.message ?: "Run failed")
-                events.emit(Pair(conversationId, AgentRunEvent.RunError(e.message ?: "Run failed")))
+                handleFailure(conversationId, e.message ?: appCtx.getString(R.string.general_run_failed))
+                events.emit(Pair(conversationId, AgentRunEvent.RunError(e.message ?: appCtx.getString(R.string.general_run_failed))))
             } finally {
                 saveUnsavedStateToDb(appCtx, runState)
                 runState.isRunning.value = false
                 synchronized(activeRuns) {
                     activeRuns.value = activeRuns.value - conversationId
-                }
-                if (!AppConfigManager.ultraAgentEnabled && synchronized(activeRuns) { activeRuns.value.isEmpty() }) {
-                    ServiceManager.stop(appCtx)
                 }
             }
         }
@@ -131,11 +127,6 @@ object AgentRunManager {
             state.engine.stop()
             state.job.cancel()
             state.isRunning.value = false
-            appContext?.let { ctx ->
-                if (!AppConfigManager.ultraAgentEnabled && synchronized(activeRuns) { activeRuns.value.isEmpty() }) {
-                    ServiceManager.stop(ctx)
-                }
-            }
         }
     }
 
@@ -158,7 +149,7 @@ object AgentRunManager {
                     ConversationEntity(
                         id = conversationId,
                         projectId = activeProjectId,
-                        title = "Recovered Agent Chat",
+                        title = context.getString(R.string.general_recovered_chat),
                         createdAt = now,
                         updatedAt = now,
                         status = "active",
@@ -298,7 +289,7 @@ object AgentRunManager {
                     steps = listOf(
                         ActivityStepItem(
                             type = ActivityStepType.Service,
-                            summary = "Applied steering",
+                            summary = str(R.string.general_applied_steering, "Applied steering"),
                             detail = event.message,
                         )
                     ),
@@ -312,7 +303,7 @@ object AgentRunManager {
                     steps = listOf(
                         ActivityStepItem(
                             type = ActivityStepType.Service,
-                            summary = "Loop warning",
+                            summary = str(R.string.general_loop_warning, "Loop warning"),
                             detail = event.message,
                         )
                     ),
@@ -335,7 +326,7 @@ object AgentRunManager {
             is AgentRunEvent.Stopped -> {
                 runState.runningAgentMessageId.value?.let { id ->
                     currentItems.replaceAgentMessage(id) { current ->
-                        current.copy(text = current.text.ifBlank { "Stopped: ${event.reason}" }, streaming = false)
+                        current.copy(text = current.text.ifBlank { str(R.string.general_stopped_with_reason, "Stopped: ${event.reason}", event.reason) }, streaming = false)
                     }
                 }
                 runState.runningActivityId.value?.let { id ->
@@ -350,7 +341,7 @@ object AgentRunManager {
             is AgentRunEvent.RunError -> {
                 runState.runningAgentMessageId.value?.let { id ->
                     currentItems.replaceAgentMessage(id) { current ->
-                        current.copy(text = current.text.ifBlank { "Error: ${event.message}" }, streaming = false)
+                        current.copy(text = current.text.ifBlank { str(R.string.general_error_with_message, "Error: ${event.message}", event.message) }, streaming = false)
                     }
                 }
                 runState.runningActivityId.value?.let { id ->
@@ -372,7 +363,7 @@ object AgentRunManager {
         if (messageId != null) {
             currentItems.replaceAgentMessage(messageId) { current ->
                 current.copy(
-                    text = current.text.ifBlank { "Error: $errorMsg" },
+                    text = current.text.ifBlank { str(R.string.general_error_with_message, "Error: $errorMsg", errorMsg) },
                     streaming = false,
                 )
             }
@@ -416,7 +407,7 @@ object AgentRunManager {
                 val content = runCatching { JSONObject(args).optString("content") }.getOrNull()
                     ?: extractJsonField(args, "content").orEmpty()
                 val lineCount = content.lines().size
-                "Write File (+$lineCount lines)"
+                str(R.string.general_tool_write_file, "Write File (+$lineCount lines)", lineCount)
             }
             "edit_file" -> {
                 val search = runCatching { JSONObject(args).optString("search") }.getOrNull()
@@ -425,7 +416,7 @@ object AgentRunManager {
                     ?: extractJsonField(args, "replace").orEmpty()
                 val searchLines = search.lines().size
                 val replaceLines = replace.lines().size
-                "Edit File (-$searchLines lines, +$replaceLines lines)"
+                str(R.string.general_tool_edit_file, "Edit File (-$searchLines lines, +$replaceLines lines)", searchLines, replaceLines)
             }
             else -> name.readableToolName()
         }

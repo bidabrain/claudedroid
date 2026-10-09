@@ -59,7 +59,7 @@ class CompactionManager(
         // 2. Prepare summarization messages for the LLM
         val summarizerSystemPrompt = """
             You are a highly efficient text summarization agent.
-            Your task is to summarize the following conversation transcript between a user and ClawDroid (an AI assistant).
+            Your task is to summarize the following conversation transcript between a user and ClaudeDroid (an AI assistant).
             Retain all key decisions made, tasks completed, file paths, tool usage results, and user preferences.
             Keep the summary concise but informative. Do not lose critical factual information.
         """.trimIndent()

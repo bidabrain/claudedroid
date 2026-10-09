@@ -36,7 +36,7 @@ object LlmSmokeClient {
                     .put(
                         JSONObject()
                             .put("role", "user")
-                            .put("content", "Say ClawDroid model smoke test ok.")
+                            .put("content", "Say ClaudeDroid model smoke test ok.")
                     )
             )
             .put("temperature", 0)
@@ -49,7 +49,7 @@ object LlmSmokeClient {
             setRequestProperty("Authorization", "Bearer $apiKey")
             setRequestProperty("Content-Type", "application/json")
             setRequestProperty("HTTP-Referer", "https://clawdroid.local")
-            setRequestProperty("X-Title", "ClawDroid")
+            setRequestProperty("X-Title", "ClaudeDroid")
         }
 
         connection.outputStream.use { output ->
@@ -85,7 +85,7 @@ object LlmSmokeClient {
                 ),
                 ChatMessage(
                     role = "user",
-                    content = "Say ClawDroid streaming smoke test ok.",
+                    content = "Say ClaudeDroid streaming smoke test ok.",
                 ),
             )
         ).collect { event ->

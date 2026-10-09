@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- System command simulation (ChatScreen) -->
+    <string name="chat_notification_channel_name">ClaudeDroid Agent Actions</string>
+    <string name="chat_toast_initiating_call">Initiating call to %1$s...</string>
+    <string name="chat_toast_opening_alarm">Opening System Alarm Clock...</string>
+    <string name="chat_alarm_label">ClaudeDroid Agent Alarm</string>
+    <string name="chat_notification_reminder_title">ClaudeDroid Reminder</string>
+    <string name="chat_notification_note_saved_title">ClaudeDroid Note Saved</string>
+    <string name="chat_toast_command_simulated">Command simulated: %1$s</string>
+
+    <!-- Voice -->
+    <string name="chat_realtime_preparing">Preparing Realtime voice...</string>
+    <string name="chat_realtime_ready">Realtime voice ready. Native WebRTC audio transport is not connected in this build yet, so standard voice mode will continue for now.</string>
+    <string name="chat_realtime_unavailable">Realtime voice unavailable: %1$s</string>
+    <string name="chat_realtime_token_failed">token request failed</string>
+    <string name="chat_cd_stop_voice">Stop voice recording</string>
+    <string name="chat_cd_listen_voice">Listen for voice input</string>
+
+    <!-- Top bar / general -->
+    <string name="chat_cd_open_navigation">Open navigation</string>
+    <string name="chat_cd_voice_call">Voice Call</string>
+    <string name="chat_cd_error">Error</string>
+
+    <!-- Empty greeting -->
+    <string name="chat_greeting_default_name">there</string>
+    <string name="chat_greeting_hello">Hello %1$s,</string>
+    <string name="chat_greeting_prompt">what\'s on your mind?</string>
+
+    <!-- Messages -->
+    <string name="chat_cd_user_attachment">User attachment</string>
+    <string name="chat_activity_tools_executed">%1$d tools executed</string>
+    <string name="chat_activity_command_count_one">%1$d command</string>
+    <string name="chat_activity_command_count_other">%1$d commands</string>
+    <string name="chat_activity_preparing">Preparing activity</string>
+    <string name="chat_activity_running">Running ·</string>
+    <string name="chat_activity_done">Done ·</string>
+    <string name="chat_activity_hide">Hide</string>
+    <string name="chat_activity_details">Details</string>
+    <string name="chat_toast_copied">Copied to clipboard</string>
+    <string name="chat_cd_copy_text">Copy text</string>
+
+    <!-- Input bar -->
+    <string name="chat_attachment_default_name">File</string>
+    <string name="chat_cd_command_menu">Command menu</string>
+    <string name="chat_cd_attach_file">Attach file</string>
+    <string name="chat_input_placeholder_steer">Steer ClaudeDroid...</string>
+    <string name="chat_input_placeholder_message">Message ClaudeDroid...</string>
+    <string name="chat_stop">Stop</string>
+    <string name="chat_cd_send">Send</string>
+
+    <!-- Command menu descriptions -->
+    <string name="chat_cmd_help_desc">Show available commands</string>
+    <string name="chat_cmd_clear_desc">Start a fresh chat</string>
+    <string name="chat_cmd_runtime_desc">Check Linux runtime</string>
+
+    <!-- Message actions -->
+    <string name="chat_cd_thumbs_up">Thumbs Up</string>
+    <string name="chat_cd_thumbs_down">Thumbs Down</string>
+    <string name="chat_cd_regenerate">Regenerate</string>
+    <string name="chat_cd_read_aloud">Read aloud</string>
+    <string name="chat_cd_share">Share</string>
+    <string name="chat_cd_copy">Copy</string>
+    <string name="chat_cd_stop_reading">Stop reading</string>
+
+    <!-- File preview -->
+    <string name="chat_preview_link">Preview →</string>
+    <string name="chat_cd_close_preview">Close preview</string>
+    <string name="chat_cd_attachment_preview">Attachment preview</string>
+    <string name="chat_cd_remove_attachment">Remove attachment</string>
+
+    <!-- Permissions dialog -->
+    <string name="chat_permissions_title">🔓 Permissions Required</string>
+    <string name="chat_permissions_body">ClaudeDroid needs the following permissions to work properly:\n\n🎤 Microphone — for voice input and call mode\n🔔 Notifications — to keep you updated on background tasks\n📱 Overlay — to show the agent status while you use other apps\n📂 Storage — to output and read files from Documents/ClaudeDroid\n\nThese help the agent assist you even when the app is minimized.</string>
+    <string name="chat_permissions_grant">Grant Permissions</string>
+    <string name="chat_permissions_later">Later</string>
+
+    <!-- Activity step details -->
+    <string name="chat_step_input">Input:</string>
+    <string name="chat_step_command">Command:</string>
+    <string name="chat_step_error">Error: %1$s</string>
+    <string name="chat_step_exit_code_output">Exit Code: %1$d\n%2$s</string>
+    <string name="chat_step_process_started">Process Started (ID: %1$s)\n%2$s</string>
+    <string name="chat_step_executing">Executing...</string>
+    <string name="chat_step_process_id">Process ID:</string>
+    <string name="chat_step_command_value">Command: %1$s</string>
+    <string name="chat_step_state_value">State: %1$s</string>
+    <string name="chat_step_exit_code_suffix">(Exit Code: %1$d)</string>
+    <string name="chat_step_output_header">Output:</string>
+    <string name="chat_step_checking_process">Checking process...</string>
+    <string name="chat_step_send_input">Send Input:</string>
+    <string name="chat_step_process_input_display">Process ID: %1$s\nInput: %2$s</string>
+    <string name="chat_step_recent_output_header">Recent Output:</string>
+    <string name="chat_step_sending_input">Sending input...</string>
+    <string name="chat_step_listing_processes">Listing active processes</string>
+    <string name="chat_step_no_processes">No active processes found.</string>
+    <string name="chat_step_retrieving_processes">Retrieving process list...</string>
+    <string name="chat_step_read_file_path">Read File Path:</string>
+    <string name="chat_step_reading_file">Reading file...</string>
+    <string name="chat_step_write_file_path">Write File Path:</string>
+    <string name="chat_step_truncated">... [truncated, %1$d lines total]</string>
+    <string name="chat_step_edit_file_path">Edit File Path:</string>
+    <string name="chat_step_directory_path">Directory Path:</string>
+    <string name="chat_step_directory_empty">Directory is empty.</string>
+    <string name="chat_step_listing_directory">Listing directory contents...</string>
+    <string name="chat_step_browse_url">Browse URL:</string>
+    <string name="chat_step_browsing">Browsing webpage...</string>
+    <string name="chat_step_search_query">Search Query:</string>
+    <string name="chat_step_no_search_results">No search results found.</string>
+    <string name="chat_step_searching">Searching DuckDuckGo...</string>
+    <string name="chat_step_notification">Notification:</string>
+    <string name="chat_step_notification_display">Title: %1$s\nBody: %2$s</string>
+    <string name="chat_step_notification_sent">Notification sent successfully.</string>
+    <string name="chat_step_sending_notification">Sending notification...</string>
+    <string name="chat_step_arguments">Arguments:</string>
+
+    <!-- ChatViewModel -->
+    <string name="chat_toast_calling">Calling %1$s...</string>
+    <string name="chat_toast_opening_alarm_short">Opening Alarm...</string>
+    <string name="chat_alarm_label_short">ClaudeDroid Alarm</string>
+    <string name="chat_notification_reminder">Reminder</string>
+    <string name="chat_notification_note_saved">Note Saved</string>
+    <string name="chat_toast_command">Command: %1$s</string>
+
+    <!-- Thinking indicators -->
+    <string name="chat_thinking_default">Thinking...</string>
+    <string name="chat_cd_thinking">Thinking</string>
+    <string name="chat_loader_thinking">Thinking…</string>
+    <string name="chat_loader_subtitle">Analyzing query and planning actions</string>
+    <string name="chat_phrase_analyzing">Analyzing...</string>
+    <string name="chat_phrase_examining">Examining...</string>
+    <string name="chat_phrase_reviewing">Reviewing...</string>
+    <string name="chat_phrase_studying">Studying...</string>
+    <string name="chat_phrase_processing">Processing...</string>
+    <string name="chat_phrase_computing">Computing...</string>
+    <string name="chat_phrase_evaluating">Evaluating...</string>
+    <string name="chat_phrase_working_on">Working on...</string>
+    <string name="chat_phrase_drafting">Drafting...</string>
+    <string name="chat_phrase_composing">Composing...</string>
+    <string name="chat_phrase_creating">Creating...</string>
+    <string name="chat_phrase_generating">Generating...</string>
+    <string name="chat_phrase_refining">Refining...</string>
+    <string name="chat_phrase_polishing">Polishing...</string>
+    <string name="chat_phrase_perfecting">Perfecting...</string>
+    <string name="chat_phrase_optimizing">Optimizing...</string>
+    <string name="chat_phrase_debugging">Debugging...</string>
+    <string name="chat_phrase_building">Building...</string>
+    <string name="chat_phrase_compiling">Compiling...</string>
+    <string name="chat_phrase_testing">Testing...</string>
+    <string name="chat_phrase_searching">Searching...</string>
+    <string name="chat_phrase_verifying">Verifying...</string>
+    <string name="chat_phrase_cross_referencing">Cross-referencing...</string>
+    <string name="chat_phrase_checking">Checking...</string>
+    <string name="chat_attach_take_photo">Take photo</string>
+    <string name="chat_attach_gallery">Choose from gallery</string>
+    <string name="chat_attach_file">Choose file</string>
+    <string name="chat_attach_no_camera">No camera app available</string>
+    <string name="chat_attach_image_failed">Couldn\'t read that image</string>
+</resources>

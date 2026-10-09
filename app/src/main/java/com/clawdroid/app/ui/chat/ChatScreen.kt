@@ -1,5 +1,14 @@
 package com.clawdroid.app.ui.chat
 
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.compose.material.icons.rounded.AttachFile
+import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material.icons.rounded.PhotoCamera
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenu
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import com.clawdroid.app.core.notifications.applyAppIcon
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -104,6 +113,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -121,6 +131,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.clawdroid.app.R
 import com.clawdroid.app.core.assistant.AssistantInvocationRouter
 import com.clawdroid.app.core.config.AppConfigManager
 import com.clawdroid.app.core.engine.AgentEngine
@@ -276,22 +287,15 @@ fun ChatScreen(
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channelId = "clawdroid_agent_channel"
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "ClawDroid Agent Actions", NotificationManager.IMPORTANCE_DEFAULT)
+            val channel = NotificationChannel(channelId, context.getString(R.string.chat_notification_channel_name), NotificationManager.IMPORTANCE_DEFAULT)
             notificationManager.createNotificationChannel(channel)
         }
         val builder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .applyAppIcon(context)
             .setContentTitle(title)
             .setContentText(content)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
-        
-        try {
-            val resId = context.resources.getIdentifier("ic_launcher", "mipmap", context.packageName)
-            if (resId != 0) {
-                builder.setSmallIcon(resId)
-            }
-        } catch (e: Exception) {}
 
         notificationManager.notify(System.currentTimeMillis().toInt(), builder.build())
     }
@@ -302,7 +306,7 @@ fun ChatScreen(
             if (lower.contains("call ") || lower.contains("dial ")) {
                 val query = text.substringAfter("call", "").substringAfter("dial", "").trim().removeSuffix(".")
                 if (query.isNotEmpty()) {
-                    Toast.makeText(context, "Initiating call to $query...", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, context.getString(R.string.chat_toast_initiating_call, query), Toast.LENGTH_LONG).show()
                     val intent = Intent(Intent.ACTION_DIAL).apply {
                         data = Uri.parse("tel:${Uri.encode(query)}")
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -310,20 +314,20 @@ fun ChatScreen(
                     context.startActivity(intent)
                 }
             } else if (lower.contains("alarm for") || lower.contains("set alarm")) {
-                Toast.makeText(context, "Opening System Alarm Clock...", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.chat_toast_opening_alarm), Toast.LENGTH_LONG).show()
                 val intent = Intent(AlarmClock.ACTION_SET_ALARM).apply {
-                    putExtra(AlarmClock.EXTRA_MESSAGE, "ClawDroid Agent Alarm")
+                    putExtra(AlarmClock.EXTRA_MESSAGE, context.getString(R.string.chat_alarm_label))
                     putExtra(AlarmClock.EXTRA_SKIP_UI, false)
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 }
                 context.startActivity(intent)
             } else if (lower.contains("remind me") || lower.contains("reminder")) {
-                showSystemNotification("ClawDroid Reminder", text)
+                showSystemNotification(context.getString(R.string.chat_notification_reminder_title), text)
             } else if (lower.contains("save note") || lower.contains("take a note") || lower.contains("write down")) {
-                showSystemNotification("ClawDroid Note Saved", text)
+                showSystemNotification(context.getString(R.string.chat_notification_note_saved_title), text)
             }
         } catch (e: Exception) {
-            Toast.makeText(context, "Command simulated: $text", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.chat_toast_command_simulated, text), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -435,18 +439,17 @@ fun ChatScreen(
             isCallMuted = false
             voiceOverlayText = ""
             userPartialText = ""
-            ServiceManager.start(context.applicationContext)
             if (AppConfigManager.realtimeVoiceEnabled) {
-                voiceOverlayText = "Preparing Realtime voice..."
+                voiceOverlayText = context.getString(R.string.chat_realtime_preparing)
                 scope.launch {
                     val result = realtimeClient.createClientSecret()
                     result.onSuccess {
-                        voiceOverlayText = "Realtime voice ready. Native WebRTC audio transport is not connected in this build yet, so standard voice mode will continue for now."
+                        voiceOverlayText = context.getString(R.string.chat_realtime_ready)
                     }.onFailure { error ->
                         voiceOverlayText = ""
                         Toast.makeText(
                             context,
-                            "Realtime voice unavailable: ${error.message ?: "token request failed"}",
+                            context.getString(R.string.chat_realtime_unavailable, error.message ?: context.getString(R.string.chat_realtime_token_failed)),
                             Toast.LENGTH_LONG,
                         ).show()
                     }
@@ -468,7 +471,7 @@ fun ChatScreen(
         val list = allConversations ?: return@LaunchedEffect
         val exists = list.any { it.id == currentConversationId }
         if (!exists) {
-            val latest = list.firstOrNull()
+            val latest = list.maxByOrNull { it.updatedAt }
             if (latest != null) {
                 currentConversationId = latest.id
                 AppConfigManager.activeConversationId = latest.id
@@ -863,7 +866,7 @@ fun ChatScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            text = if (isCallModeActive || voiceSpeaking) AppConfigManager.agentName else "ClawDroid",
+                            text = if (isCallModeActive || voiceSpeaking) AppConfigManager.agentName else "ClaudeDroid",
                             style = MaterialTheme.typography.titleLarge.copy(
                                 color = SoftWhite,
                                 fontWeight = FontWeight.Bold,
@@ -874,7 +877,7 @@ fun ChatScreen(
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(
                                 imageVector = Icons.Rounded.Menu,
-                                contentDescription = "Open navigation",
+                                contentDescription = stringResource(R.string.chat_cd_open_navigation),
                                 tint = SoftWhite,
                             )
                         }
@@ -890,7 +893,7 @@ fun ChatScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.Call,
-                                contentDescription = "Voice Call",
+                                contentDescription = stringResource(R.string.chat_cd_voice_call),
                                 tint = EmberOrange,
                             )
                         }
@@ -1085,7 +1088,7 @@ fun ChatScreen(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
                                     imageVector = Icons.Rounded.Close,
-                                    contentDescription = "Error",
+                                    contentDescription = stringResource(R.string.chat_cd_error),
                                     tint = Color.White,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -1114,14 +1117,14 @@ fun ChatScreen(
 
 @Composable
 private fun EmptyGreeting(modifier: Modifier = Modifier) {
-    val name = AppConfigManager.ownerName.trim().ifBlank { "there" }
+    val name = AppConfigManager.ownerName.trim().ifBlank { stringResource(R.string.chat_greeting_default_name) }
     Column(
         modifier = modifier.padding(horizontal = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = "Hello $name,",
+            text = stringResource(R.string.chat_greeting_hello, name),
             color = SoftWhite,
             style = MaterialTheme.typography.headlineLarge.copy(
                 fontSize = 32.sp,
@@ -1132,7 +1135,7 @@ private fun EmptyGreeting(modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center,
         )
         Text(
-            text = "what's on your mind?",
+            text = stringResource(R.string.chat_greeting_prompt),
             color = MutedGray,
             style = MaterialTheme.typography.headlineLarge.copy(
                 fontSize = 32.sp,
@@ -1169,7 +1172,7 @@ private fun UserMessageBubble(item: UserChatItem) {
                     if (isImage && bitmap != null) {
                         androidx.compose.foundation.Image(
                             bitmap = bitmap,
-                            contentDescription = "User attachment",
+                            contentDescription = stringResource(R.string.chat_cd_user_attachment),
                             contentScale = androidx.compose.ui.layout.ContentScale.Fit,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -1288,10 +1291,14 @@ private fun InlineActivityTrail(
     val commandCount = steps.count { it.type == ActivityStepType.Command }
     val latest = steps.lastOrNull()
     val title = when {
-        steps.size > 1 -> "${steps.size} tools executed"
-        commandCount > 0 -> "$commandCount command${if (commandCount == 1) "" else "s"}"
+        steps.size > 1 -> stringResource(R.string.chat_activity_tools_executed, steps.size)
+        commandCount > 0 -> if (commandCount == 1) {
+            stringResource(R.string.chat_activity_command_count_one, commandCount)
+        } else {
+            stringResource(R.string.chat_activity_command_count_other, commandCount)
+        }
         latest != null -> latest.summary
-        else -> "Preparing activity"
+        else -> stringResource(R.string.chat_activity_preparing)
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -1310,7 +1317,7 @@ private fun InlineActivityTrail(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Text(
-                    text = if (running) "Running ·" else "Done ·",
+                    text = if (running) stringResource(R.string.chat_activity_running) else stringResource(R.string.chat_activity_done),
                     color = if (running) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f),
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                 )
@@ -1321,7 +1328,7 @@ private fun InlineActivityTrail(
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
                 )
                 Text(
-                    text = if (expanded) "Hide" else "Details",
+                    text = if (expanded) stringResource(R.string.chat_activity_hide) else stringResource(R.string.chat_activity_details),
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.62f),
                     style = MaterialTheme.typography.labelSmall,
                 )
@@ -1380,7 +1387,7 @@ private fun InlineActivityStep(step: ActivityStepItem) {
                     .padding(top = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                val parsed = formatStepContent(step)
+                val parsed = formatStepContent(step, LocalContext.current)
 
                 if (parsed.copyText != null || parsed.displayText.isNotEmpty()) {
                     Row(
@@ -1419,13 +1426,13 @@ private fun InlineActivityStep(step: ActivityStepItem) {
                             IconButton(
                                 onClick = {
                                     clipboardManager.setText(AnnotatedString(parsed.copyText))
-                                    Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.chat_toast_copied), Toast.LENGTH_SHORT).show()
                                 },
                                 modifier = Modifier.size(36.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Rounded.ContentCopy,
-                                    contentDescription = "Copy text",
+                                    contentDescription = stringResource(R.string.chat_cd_copy_text),
                                     modifier = Modifier.size(18.dp),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
@@ -1476,13 +1483,36 @@ private fun PremiumInputBar(
 ) {
     var commandMenuVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var attachMenuVisible by remember { mutableStateOf(false) }
+    // Images are downscaled before attaching so they stay under Claude's per-image size limit.
+    val attachImage: (Uri) -> Unit = { uri ->
+        scope.launch {
+            val scaled = withContext(Dispatchers.IO) { runCatching { ImageAttachments.downscale(context, uri) }.getOrNull() }
+            if (scaled != null) onMediaSelected(scaled.first, scaled.second, "image/jpeg")
+            else Toast.makeText(context, context.getString(R.string.chat_attach_image_failed), Toast.LENGTH_SHORT).show()
+        }
+    }
     val attachmentPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri ->
             if (uri != null) {
                 val (name, mime) = getUriMetadata(context, uri)
-                onMediaSelected(uri, name, mime)
+                if (mime?.startsWith("image/") == true) attachImage(uri) else onMediaSelected(uri, name, mime)
             }
+        },
+    )
+    val galleryPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri -> if (uri != null) attachImage(uri) },
+    )
+    var pendingCameraUri by remember { mutableStateOf<Uri?>(null) }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { saved ->
+            val uri = pendingCameraUri
+            pendingCameraUri = null
+            if (saved && uri != null) attachImage(uri)
         },
     )
     val showCommandButton = value.isEmpty()
@@ -1527,7 +1557,7 @@ private fun PremiumInputBar(
                 if (selectedMediaUri != null) {
                     AttachmentPreviewRow(
                         uri = selectedMediaUri,
-                        name = selectedMediaName ?: "File",
+                        name = selectedMediaName ?: stringResource(R.string.chat_attachment_default_name),
                         mimeType = selectedMediaMimeType,
                         onClear = { onMediaSelected(null, null, null) }
                     )
@@ -1542,19 +1572,55 @@ private fun PremiumInputBar(
                         CompactIconButton(onClick = { commandMenuVisible = !commandMenuVisible }) {
                             Icon(
                                 imageVector = Icons.Rounded.Menu,
-                                contentDescription = "Command menu",
+                                contentDescription = stringResource(R.string.chat_cd_command_menu),
                                 modifier = Modifier.size(20.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
-                    CompactIconButton(onClick = { attachmentPicker.launch("*/*") }) {
-                        Icon(
-                            imageVector = Icons.Rounded.Add,
-                            contentDescription = "Attach file",
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                    Box {
+                        CompactIconButton(onClick = { attachMenuVisible = true }) {
+                            Icon(
+                                imageVector = Icons.Rounded.Add,
+                                contentDescription = stringResource(R.string.chat_cd_attach_file),
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = attachMenuVisible,
+                            onDismissRequest = { attachMenuVisible = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.chat_attach_take_photo)) },
+                                leadingIcon = { Icon(Icons.Rounded.PhotoCamera, contentDescription = null) },
+                                onClick = {
+                                    attachMenuVisible = false
+                                    val (_, target) = ImageAttachments.newCameraTarget(context)
+                                    pendingCameraUri = target
+                                    runCatching { cameraLauncher.launch(target) }.onFailure {
+                                        pendingCameraUri = null
+                                        Toast.makeText(context, context.getString(R.string.chat_attach_no_camera), Toast.LENGTH_SHORT).show()
+                                    }
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.chat_attach_gallery)) },
+                                leadingIcon = { Icon(Icons.Rounded.Image, contentDescription = null) },
+                                onClick = {
+                                    attachMenuVisible = false
+                                    galleryPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.chat_attach_file)) },
+                                leadingIcon = { Icon(Icons.Rounded.AttachFile, contentDescription = null) },
+                                onClick = {
+                                    attachMenuVisible = false
+                                    attachmentPicker.launch("*/*")
+                                },
+                            )
+                        }
                     }
                     BasicTextField(
                         value = value,
@@ -1586,7 +1652,7 @@ private fun PremiumInputBar(
                             Box(contentAlignment = Alignment.CenterStart) {
                                 if (value.isEmpty()) {
                                     Text(
-                                        text = if (state == AgentRuntimeState.Running) "Steer ClawDroid..." else "Message ClawDroid...",
+                                        text = if (state == AgentRuntimeState.Running) stringResource(R.string.chat_input_placeholder_steer) else stringResource(R.string.chat_input_placeholder_message),
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.64f),
                                         style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
                                     )
@@ -1607,7 +1673,7 @@ private fun PremiumInputBar(
                         ) {
                             Icon(imageVector = Icons.Rounded.Stop, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Stop", fontSize = 13.sp)
+                            Text(stringResource(R.string.chat_stop), fontSize = 13.sp)
                         }
                     } else {
                         Surface(
@@ -1620,7 +1686,7 @@ private fun PremiumInputBar(
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Rounded.Send,
-                                contentDescription = "Send",
+                                contentDescription = stringResource(R.string.chat_cd_send),
                                 modifier = Modifier.size(20.dp),
                             )
                         }
@@ -1647,9 +1713,9 @@ private fun CommandMenu(onCommandSelected: (String) -> Unit) {
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            CommandMenuItem("/help", "Show available commands", onCommandSelected)
-            CommandMenuItem("/clear", "Start a fresh chat", onCommandSelected)
-            CommandMenuItem("/runtime", "Check Linux runtime", onCommandSelected)
+            CommandMenuItem("/help", stringResource(R.string.chat_cmd_help_desc), onCommandSelected)
+            CommandMenuItem("/clear", stringResource(R.string.chat_cmd_clear_desc), onCommandSelected)
+            CommandMenuItem("/runtime", stringResource(R.string.chat_cmd_runtime_desc), onCommandSelected)
         }
     }
 }
@@ -1724,7 +1790,7 @@ private fun MessageActionRow(
         ) {
             Icon(
                 imageVector = Icons.Rounded.ThumbUp,
-                contentDescription = "Thumbs Up",
+                contentDescription = stringResource(R.string.chat_cd_thumbs_up),
                 tint = if (isLiked) EmberOrange else MutedGray.copy(alpha = 0.8f),
                 modifier = Modifier.size(16.dp)
             )
@@ -1739,7 +1805,7 @@ private fun MessageActionRow(
         ) {
             Icon(
                 imageVector = Icons.Rounded.ThumbDown,
-                contentDescription = "Thumbs Down",
+                contentDescription = stringResource(R.string.chat_cd_thumbs_down),
                 tint = if (isDisliked) EmberOrange else MutedGray.copy(alpha = 0.8f),
                 modifier = Modifier.size(16.dp)
             )
@@ -1751,7 +1817,7 @@ private fun MessageActionRow(
         ) {
             Icon(
                 imageVector = Icons.Rounded.Refresh,
-                contentDescription = "Regenerate",
+                contentDescription = stringResource(R.string.chat_cd_regenerate),
                 tint = MutedGray.copy(alpha = 0.8f),
                 modifier = Modifier.size(16.dp)
             )
@@ -1763,7 +1829,7 @@ private fun MessageActionRow(
         ) {
             Icon(
                 imageVector = Icons.Rounded.ContentCopy,
-                contentDescription = "Copy text",
+                contentDescription = stringResource(R.string.chat_cd_copy_text),
                 tint = MutedGray.copy(alpha = 0.8f),
                 modifier = Modifier.size(16.dp)
             )
@@ -1775,7 +1841,7 @@ private fun MessageActionRow(
         ) {
             Icon(
                 imageVector = Icons.Rounded.VolumeUp,
-                contentDescription = "Read aloud",
+                contentDescription = stringResource(R.string.chat_cd_read_aloud),
                 tint = MutedGray.copy(alpha = 0.8f),
                 modifier = Modifier.size(16.dp)
             )
@@ -1787,7 +1853,7 @@ private fun MessageActionRow(
         ) {
             Icon(
                 imageVector = Icons.Rounded.Share,
-                contentDescription = "Share",
+                contentDescription = stringResource(R.string.chat_cd_share),
                 tint = MutedGray.copy(alpha = 0.8f),
                 modifier = Modifier.size(16.dp)
             )
@@ -1830,7 +1896,7 @@ private fun FilePreviewStrip(
                         modifier = Modifier.weight(1f),
                     )
                     Text(
-                        text = "Preview →",
+                        text = stringResource(R.string.chat_preview_link),
                         color = EmberOrange,
                         style = MaterialTheme.typography.labelSmall,
                     )
@@ -1878,7 +1944,7 @@ private fun FilePreviewDialog(
                     IconButton(onClick = onDismiss) {
                         Icon(
                             Icons.Rounded.Close,
-                            contentDescription = "Close preview",
+                            contentDescription = stringResource(R.string.chat_cd_close_preview),
                             tint = MutedGray,
                         )
                     }
@@ -1954,30 +2020,25 @@ private fun PermissionsDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "🔓 Permissions Required",
+                text = stringResource(R.string.chat_permissions_title),
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge,
             )
         },
         text = {
             Text(
-                text = "ClawDroid needs the following permissions to work properly:\n\n" +
-                    "🎤 Microphone — for voice input and call mode\n" +
-                    "🔔 Notifications — to keep you updated on background tasks\n" +
-                    "📱 Overlay — to show the agent status while you use other apps\n" +
-                    "📂 Storage — to output and read files from Documents/ClawDroid\n\n" +
-                    "These help the agent assist you even when the app is minimized.",
+                text = stringResource(R.string.chat_permissions_body),
                 style = MaterialTheme.typography.bodyMedium,
             )
         },
         confirmButton = {
             TextButton(onClick = onGrantAll) {
-                Text("Grant Permissions", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.chat_permissions_grant), fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Later")
+                Text(stringResource(R.string.chat_permissions_later))
             }
         },
     )
@@ -2032,7 +2093,7 @@ private data class StepDetails(
     val outputText: String
 )
 
-private fun formatStepContent(step: ActivityStepItem): StepDetails {
+private fun formatStepContent(step: ActivityStepItem, context: Context): StepDetails {
     val argsObj = runCatching { JSONObject(step.arguments) }.getOrNull()
     val resultObj = if (!step.result.isNullOrBlank()) {
         runCatching { JSONObject(step.result) }.getOrNull()
@@ -2040,7 +2101,7 @@ private fun formatStepContent(step: ActivityStepItem): StepDetails {
         null
     }
 
-    var title = "Input:"
+    var title = context.getString(R.string.chat_step_input)
     var copyText: String? = null
     var displayText = ""
     var outputText = ""
@@ -2053,75 +2114,78 @@ private fun formatStepContent(step: ActivityStepItem): StepDetails {
 
     when {
         toolName == "execute_command" || toolName == "start_process" -> {
-            title = "Command:"
+            title = context.getString(R.string.chat_step_command)
             val cmd = argsObj?.optString("command") ?: ""
             copyText = cmd
             displayText = cmd
             
             outputText = when {
-                errorMessage != null -> "Error: $errorMessage"
+                errorMessage != null -> context.getString(R.string.chat_step_error, errorMessage)
                 resultObj != null -> {
                     if (toolName == "execute_command") {
                         val exitCode = resultObj.optInt("exit_code", 0)
                         val out = resultObj.optString("output") ?: ""
                         if (exitCode != 0) {
-                            "Exit Code: $exitCode\n$out".trim()
+                            context.getString(R.string.chat_step_exit_code_output, exitCode, out).trim()
                         } else {
                             out
                         }
                     } else {
                         val procId = resultObj.optString("process_id") ?: ""
                         val initOut = resultObj.optString("initial_output") ?: ""
-                        "Process Started (ID: $procId)\n$initOut".trim()
+                        context.getString(R.string.chat_step_process_started, procId, initOut).trim()
                     }
                 }
-                step.running -> "Executing..."
+                step.running -> context.getString(R.string.chat_step_executing)
                 else -> ""
             }
         }
         
         toolName == "check_process" || toolName == "kill_process" -> {
-            title = "Process ID:"
+            title = context.getString(R.string.chat_step_process_id)
             val procId = argsObj?.optString("process_id") ?: ""
             copyText = procId
             displayText = procId
             
             outputText = when {
-                errorMessage != null -> "Error: $errorMessage"
+                errorMessage != null -> context.getString(R.string.chat_step_error, errorMessage)
                 resultObj != null -> {
                     val cmd = resultObj.optString("command") ?: ""
                     val state = resultObj.optString("state") ?: ""
                     val exitCode = resultObj.optInt("exit_code", -1)
                     val recent = resultObj.optString("recent_output") ?: ""
                     buildString {
-                        append("Command: $cmd\n")
-                        append("State: $state")
-                        if (exitCode != -1) append(" (Exit Code: $exitCode)")
-                        if (recent.isNotEmpty()) append("\n\nOutput:\n$recent")
+                        append(context.getString(R.string.chat_step_command_value, cmd)).append("\n")
+                        append(context.getString(R.string.chat_step_state_value, state))
+                        if (exitCode != -1) append(" ").append(context.getString(R.string.chat_step_exit_code_suffix, exitCode))
+                        if (recent.isNotEmpty()) {
+                            append("\n\n").append(context.getString(R.string.chat_step_output_header)).append("\n").append(recent)
+                        }
                     }
                 }
-                step.running -> "Checking process..."
+                step.running -> context.getString(R.string.chat_step_checking_process)
                 else -> ""
             }
         }
 
         toolName == "send_input" -> {
-            title = "Send Input:"
+            title = context.getString(R.string.chat_step_send_input)
             val procId = argsObj?.optString("process_id") ?: ""
             val inputVal = argsObj?.optString("input") ?: ""
             copyText = inputVal
-            displayText = "Process ID: $procId\nInput: $inputVal"
+            displayText = context.getString(R.string.chat_step_process_input_display, procId, inputVal)
             
             outputText = when {
-                errorMessage != null -> "Error: $errorMessage"
+                errorMessage != null -> context.getString(R.string.chat_step_error, errorMessage)
                 resultObj != null -> {
                     val state = resultObj.optString("state") ?: ""
                     val recent = resultObj.optString("recent_output") ?: ""
                     buildString {
-                        append("State: $state\n\nRecent Output:\n$recent")
+                        append(context.getString(R.string.chat_step_state_value, state))
+                        append("\n\n").append(context.getString(R.string.chat_step_recent_output_header)).append("\n").append(recent)
                     }
                 }
-                step.running -> "Sending input..."
+                step.running -> context.getString(R.string.chat_step_sending_input)
                 else -> ""
             }
         }
@@ -2129,10 +2193,10 @@ private fun formatStepContent(step: ActivityStepItem): StepDetails {
         toolName == "list_processes" -> {
             title = ""
             copyText = null
-            displayText = "Listing active processes"
+            displayText = context.getString(R.string.chat_step_listing_processes)
             
             outputText = when {
-                errorMessage != null -> "Error: $errorMessage"
+                errorMessage != null -> context.getString(R.string.chat_step_error, errorMessage)
                 resultObj != null -> {
                     val array = resultObj.optJSONArray("processes")
                     if (array != null && array.length() > 0) {
@@ -2146,30 +2210,30 @@ private fun formatStepContent(step: ActivityStepItem): StepDetails {
                             }
                         }.trim()
                     } else {
-                        "No active processes found."
+                        context.getString(R.string.chat_step_no_processes)
                     }
                 }
-                step.running -> "Retrieving process list..."
+                step.running -> context.getString(R.string.chat_step_retrieving_processes)
                 else -> ""
             }
         }
 
         toolName == "read_file" -> {
-            title = "Read File Path:"
+            title = context.getString(R.string.chat_step_read_file_path)
             val path = argsObj?.optString("path") ?: ""
             copyText = path
             displayText = path
             
             outputText = when {
-                errorMessage != null -> "Error: $errorMessage"
+                errorMessage != null -> context.getString(R.string.chat_step_error, errorMessage)
                 resultObj != null -> resultObj.optString("content") ?: ""
-                step.running -> "Reading file..."
+                step.running -> context.getString(R.string.chat_step_reading_file)
                 else -> ""
             }
         }
 
         toolName == "write_file" -> {
-            title = "Write File Path:"
+            title = context.getString(R.string.chat_step_write_file_path)
             val path = argsObj?.optString("path") ?: extractJsonField(step.arguments, "path") ?: ""
             val content = argsObj?.optString("content") ?: extractJsonField(step.arguments, "content") ?: ""
             copyText = path
@@ -2178,18 +2242,18 @@ private fun formatStepContent(step: ActivityStepItem): StepDetails {
             displayText = "$path\n+$lineCount lines"
             
             outputText = when {
-                errorMessage != null -> "Error: $errorMessage"
+                errorMessage != null -> context.getString(R.string.chat_step_error, errorMessage)
                 else -> {
                     val previewLines = content.lines()
                     val preview = previewLines.take(150).joinToString("\n")
-                    val isMore = if (previewLines.size > 150) "\n\n... [truncated, ${previewLines.size} lines total]" else ""
+                    val isMore = if (previewLines.size > 150) "\n\n" + context.getString(R.string.chat_step_truncated, previewLines.size) else ""
                     "+$lineCount lines\n\n$preview$isMore"
                 }
             }
         }
 
         toolName == "edit_file" -> {
-            title = "Edit File Path:"
+            title = context.getString(R.string.chat_step_edit_file_path)
             val path = argsObj?.optString("path") ?: extractJsonField(step.arguments, "path") ?: ""
             val search = argsObj?.optString("search") ?: extractJsonField(step.arguments, "search") ?: ""
             val replace = argsObj?.optString("replace") ?: extractJsonField(step.arguments, "replace") ?: ""
@@ -2200,15 +2264,15 @@ private fun formatStepContent(step: ActivityStepItem): StepDetails {
             displayText = "$path\n-$searchLines lines, +$replaceLines lines"
             
             outputText = when {
-                errorMessage != null -> "Error: $errorMessage"
+                errorMessage != null -> context.getString(R.string.chat_step_error, errorMessage)
                 else -> {
                     val searchPreviewLines = search.lines()
                     val searchPreview = searchPreviewLines.take(150).joinToString("\n")
-                    val searchMore = if (searchPreviewLines.size > 150) "\n\n... [truncated, ${searchPreviewLines.size} lines total]" else ""
+                    val searchMore = if (searchPreviewLines.size > 150) "\n\n" + context.getString(R.string.chat_step_truncated, searchPreviewLines.size) else ""
                     
                     val replacePreviewLines = replace.lines()
                     val replacePreview = replacePreviewLines.take(150).joinToString("\n")
-                    val replaceMore = if (replacePreviewLines.size > 150) "\n\n... [truncated, ${replacePreviewLines.size} lines total]" else ""
+                    val replaceMore = if (replacePreviewLines.size > 150) "\n\n" + context.getString(R.string.chat_step_truncated, replacePreviewLines.size) else ""
                     
                     buildString {
                         appendLine("-$searchLines lines, +$replaceLines lines")
@@ -2224,13 +2288,13 @@ private fun formatStepContent(step: ActivityStepItem): StepDetails {
         }
 
         toolName == "list_directory" -> {
-            title = "Directory Path:"
+            title = context.getString(R.string.chat_step_directory_path)
             val path = argsObj?.optString("path") ?: ""
             copyText = path
             displayText = path
             
             outputText = when {
-                errorMessage != null -> "Error: $errorMessage"
+                errorMessage != null -> context.getString(R.string.chat_step_error, errorMessage)
                 resultObj != null -> {
                     val entries = resultObj.optJSONArray("entries")
                     if (entries != null && entries.length() > 0) {
@@ -2247,36 +2311,36 @@ private fun formatStepContent(step: ActivityStepItem): StepDetails {
                             }
                         }.trim()
                     } else {
-                        "Directory is empty."
+                        context.getString(R.string.chat_step_directory_empty)
                     }
                 }
-                step.running -> "Listing directory contents..."
+                step.running -> context.getString(R.string.chat_step_listing_directory)
                 else -> ""
             }
         }
 
         toolName == "browse_web" -> {
-            title = "Browse URL:"
+            title = context.getString(R.string.chat_step_browse_url)
             val url = argsObj?.optString("url") ?: ""
             copyText = url
             displayText = url
             
             outputText = when {
-                errorMessage != null -> "Error: $errorMessage"
+                errorMessage != null -> context.getString(R.string.chat_step_error, errorMessage)
                 resultObj != null -> resultObj.optString("content") ?: ""
-                step.running -> "Browsing webpage..."
+                step.running -> context.getString(R.string.chat_step_browsing)
                 else -> ""
             }
         }
 
         toolName == "web_search" -> {
-            title = "Search Query:"
+            title = context.getString(R.string.chat_step_search_query)
             val query = argsObj?.optString("query") ?: ""
             copyText = query
             displayText = query
             
             outputText = when {
-                errorMessage != null -> "Error: $errorMessage"
+                errorMessage != null -> context.getString(R.string.chat_step_error, errorMessage)
                 resultObj != null -> {
                     val results = resultObj.optJSONArray("results")
                     if (results != null && results.length() > 0) {
@@ -2290,36 +2354,36 @@ private fun formatStepContent(step: ActivityStepItem): StepDetails {
                             }
                         }.trim()
                     } else {
-                        "No search results found."
+                        context.getString(R.string.chat_step_no_search_results)
                     }
                 }
-                step.running -> "Searching DuckDuckGo..."
+                step.running -> context.getString(R.string.chat_step_searching)
                 else -> ""
             }
         }
 
         toolName == "send_notification" -> {
-            title = "Notification:"
+            title = context.getString(R.string.chat_step_notification)
             val noteTitle = argsObj?.optString("title") ?: ""
             val noteBody = argsObj?.optString("body") ?: ""
             copyText = null
-            displayText = "Title: $noteTitle\nBody: $noteBody"
+            displayText = context.getString(R.string.chat_step_notification_display, noteTitle, noteBody)
             
             outputText = when {
-                errorMessage != null -> "Error: $errorMessage"
-                resultObj != null -> "Notification sent successfully."
-                step.running -> "Sending notification..."
+                errorMessage != null -> context.getString(R.string.chat_step_error, errorMessage)
+                resultObj != null -> context.getString(R.string.chat_step_notification_sent)
+                step.running -> context.getString(R.string.chat_step_sending_notification)
                 else -> ""
             }
         }
 
         else -> {
-            title = "Arguments:"
+            title = context.getString(R.string.chat_step_arguments)
             copyText = step.arguments
             displayText = step.arguments
             
             outputText = when {
-                errorMessage != null -> "Error: $errorMessage"
+                errorMessage != null -> context.getString(R.string.chat_step_error, errorMessage)
                 resultObj != null -> step.result ?: ""
                 step.detail.isNotEmpty() -> step.detail
                 else -> ""
@@ -2328,7 +2392,7 @@ private fun formatStepContent(step: ActivityStepItem): StepDetails {
     }
 
     if (errorMessage != null) {
-        outputText = "Error: $errorMessage"
+        outputText = context.getString(R.string.chat_step_error, errorMessage)
     }
 
     return StepDetails(title, copyText, displayText, outputText)
@@ -2622,7 +2686,7 @@ private fun AttachmentPreviewRow(
             if (isImage && bitmap != null) {
                 androidx.compose.foundation.Image(
                     bitmap = bitmap,
-                    contentDescription = "Attachment preview",
+                    contentDescription = stringResource(R.string.chat_cd_attachment_preview),
                     contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -2668,7 +2732,7 @@ private fun AttachmentPreviewRow(
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Close,
-                    contentDescription = "Remove attachment",
+                    contentDescription = stringResource(R.string.chat_cd_remove_attachment),
                     tint = Color.White,
                     modifier = Modifier.size(12.dp)
                 )

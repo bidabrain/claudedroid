@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- System command simulation (ChatScreen) -->
+    <string name="chat_notification_channel_name">ClaudeDroid 智能体操作</string>
+    <string name="chat_toast_initiating_call">正在呼叫 %1$s…</string>
+    <string name="chat_toast_opening_alarm">正在打开系统闹钟…</string>
+    <string name="chat_alarm_label">ClaudeDroid 智能体闹钟</string>
+    <string name="chat_notification_reminder_title">ClaudeDroid 提醒</string>
+    <string name="chat_notification_note_saved_title">ClaudeDroid 笔记已保存</string>
+    <string name="chat_toast_command_simulated">已模拟命令：%1$s</string>
+
+    <!-- Voice -->
+    <string name="chat_realtime_preparing">正在准备实时语音…</string>
+    <string name="chat_realtime_ready">实时语音已就绪。当前版本尚未接入原生 WebRTC 音频传输，暂时继续使用标准语音模式。</string>
+    <string name="chat_realtime_unavailable">实时语音不可用：%1$s</string>
+    <string name="chat_realtime_token_failed">令牌请求失败</string>
+    <string name="chat_cd_stop_voice">停止录音</string>
+    <string name="chat_cd_listen_voice">开始语音输入</string>
+
+    <!-- Top bar / general -->
+    <string name="chat_cd_open_navigation">打开导航</string>
+    <string name="chat_cd_voice_call">语音通话</string>
+    <string name="chat_cd_error">错误</string>
+
+    <!-- Empty greeting -->
+    <string name="chat_greeting_default_name">朋友</string>
+    <string name="chat_greeting_hello">%1$s，你好</string>
+    <string name="chat_greeting_prompt">想聊点什么？</string>
+
+    <!-- Messages -->
+    <string name="chat_cd_user_attachment">用户附件</string>
+    <string name="chat_activity_tools_executed">已执行 %1$d 个工具</string>
+    <string name="chat_activity_command_count_one">%1$d 条命令</string>
+    <string name="chat_activity_command_count_other">%1$d 条命令</string>
+    <string name="chat_activity_preparing">正在准备</string>
+    <string name="chat_activity_running">运行中 ·</string>
+    <string name="chat_activity_done">已完成 ·</string>
+    <string name="chat_activity_hide">收起</string>
+    <string name="chat_activity_details">详情</string>
+    <string name="chat_toast_copied">已复制到剪贴板</string>
+    <string name="chat_cd_copy_text">复制文本</string>
+
+    <!-- Input bar -->
+    <string name="chat_attachment_default_name">文件</string>
+    <string name="chat_cd_command_menu">命令菜单</string>
+    <string name="chat_cd_attach_file">添加附件</string>
+    <string name="chat_input_placeholder_steer">引导 ClaudeDroid…</string>
+    <string name="chat_input_placeholder_message">给 ClaudeDroid 发消息…</string>
+    <string name="chat_stop">停止</string>
+    <string name="chat_cd_send">发送</string>
+
+    <!-- Command menu descriptions -->
+    <string name="chat_cmd_help_desc">显示可用命令</string>
+    <string name="chat_cmd_clear_desc">开始新对话</string>
+    <string name="chat_cmd_runtime_desc">检查 Linux 运行环境</string>
+
+    <!-- Message actions -->
+    <string name="chat_cd_thumbs_up">赞</string>
+    <string name="chat_cd_thumbs_down">踩</string>
+    <string name="chat_cd_regenerate">重新生成</string>
+    <string name="chat_cd_read_aloud">朗读</string>
+    <string name="chat_cd_share">分享</string>
+    <string name="chat_cd_copy">复制</string>
+    <string name="chat_cd_stop_reading">停止朗读</string>
+
+    <!-- File preview -->
+    <string name="chat_preview_link">预览 →</string>
+    <string name="chat_cd_close_preview">关闭预览</string>
+    <string name="chat_cd_attachment_preview">附件预览</string>
+    <string name="chat_cd_remove_attachment">移除附件</string>
+
+    <!-- Permissions dialog -->
+    <string name="chat_permissions_title">🔓 需要权限</string>
+    <string name="chat_permissions_body">ClaudeDroid 需要以下权限才能正常工作：\n\n🎤 麦克风 — 用于语音输入和通话模式\n🔔 通知 — 让你随时了解后台任务进展\n📱 悬浮窗 — 在你使用其他应用时显示智能体状态\n📂 存储 — 在 Documents/ClaudeDroid 中读写文件\n\n有了这些权限，即使应用最小化，智能体也能继续为你服务。</string>
+    <string name="chat_permissions_grant">授予权限</string>
+    <string name="chat_permissions_later">稍后</string>
+
+    <!-- Activity step details -->
+    <string name="chat_step_input">输入：</string>
+    <string name="chat_step_command">命令：</string>
+    <string name="chat_step_error">错误：%1$s</string>
+    <string name="chat_step_exit_code_output">退出码：%1$d\n%2$s</string>
+    <string name="chat_step_process_started">进程已启动（ID：%1$s）\n%2$s</string>
+    <string name="chat_step_executing">正在执行…</string>
+    <string name="chat_step_process_id">进程 ID：</string>
+    <string name="chat_step_command_value">命令：%1$s</string>
+    <string name="chat_step_state_value">状态：%1$s</string>
+    <string name="chat_step_exit_code_suffix">（退出码：%1$d）</string>
+    <string name="chat_step_output_header">输出：</string>
+    <string name="chat_step_checking_process">正在检查进程…</string>
+    <string name="chat_step_send_input">发送输入：</string>
+    <string name="chat_step_process_input_display">进程 ID：%1$s\n输入：%2$s</string>
+    <string name="chat_step_recent_output_header">最近输出：</string>
+    <string name="chat_step_sending_input">正在发送输入…</string>
+    <string name="chat_step_listing_processes">列出活动进程</string>
+    <string name="chat_step_no_processes">没有活动进程。</string>
+    <string name="chat_step_retrieving_processes">正在获取进程列表…</string>
+    <string name="chat_step_read_file_path">读取文件路径：</string>
+    <string name="chat_step_reading_file">正在读取文件…</string>
+    <string name="chat_step_write_file_path">写入文件路径：</string>
+    <string name="chat_step_truncated">… [已截断，共 %1$d 行]</string>
+    <string name="chat_step_edit_file_path">编辑文件路径：</string>
+    <string name="chat_step_directory_path">目录路径：</string>
+    <string name="chat_step_directory_empty">目录为空。</string>
+    <string name="chat_step_listing_directory">正在列出目录内容…</string>
+    <string name="chat_step_browse_url">浏览网址：</string>
+    <string name="chat_step_browsing">正在浏览网页…</string>
+    <string name="chat_step_search_query">搜索关键词：</string>
+    <string name="chat_step_no_search_results">未找到搜索结果。</string>
+    <string name="chat_step_searching">正在搜索 DuckDuckGo…</string>
+    <string name="chat_step_notification">通知：</string>
+    <string name="chat_step_notification_display">标题：%1$s\n内容：%2$s</string>
+    <string name="chat_step_notification_sent">通知已发送。</string>
+    <string name="chat_step_sending_notification">正在发送通知…</string>
+    <string name="chat_step_arguments">参数：</string>
+
+    <!-- ChatViewModel -->
+    <string name="chat_toast_calling">正在呼叫 %1$s…</string>
+    <string name="chat_toast_opening_alarm_short">正在打开闹钟…</string>
+    <string name="chat_alarm_label_short">ClaudeDroid 闹钟</string>
+    <string name="chat_notification_reminder">提醒</string>
+    <string name="chat_notification_note_saved">笔记已保存</string>
+    <string name="chat_toast_command">命令：%1$s</string>
+
+    <!-- Thinking indicators -->
+    <string name="chat_thinking_default">思考中…</string>
+    <string name="chat_cd_thinking">思考中</string>
+    <string name="chat_loader_thinking">思考中…</string>
+    <string name="chat_loader_subtitle">正在分析问题并规划操作</string>
+    <string name="chat_phrase_analyzing">分析中…</string>
+    <string name="chat_phrase_examining">检查中…</string>
+    <string name="chat_phrase_reviewing">审阅中…</string>
+    <string name="chat_phrase_studying">研究中…</string>
+    <string name="chat_phrase_processing">处理中…</string>
+    <string name="chat_phrase_computing">计算中…</string>
+    <string name="chat_phrase_evaluating">评估中…</string>
+    <string name="chat_phrase_working_on">处理中…</string>
+    <string name="chat_phrase_drafting">起草中…</string>
+    <string name="chat_phrase_composing">撰写中…</string>
+    <string name="chat_phrase_creating">创建中…</string>
+    <string name="chat_phrase_generating">生成中…</string>
+    <string name="chat_phrase_refining">完善中…</string>
+    <string name="chat_phrase_polishing">润色中…</string>
+    <string name="chat_phrase_perfecting">精修中…</string>
+    <string name="chat_phrase_optimizing">优化中…</string>
+    <string name="chat_phrase_debugging">调试中…</string>
+    <string name="chat_phrase_building">构建中…</string>
+    <string name="chat_phrase_compiling">编译中…</string>
+    <string name="chat_phrase_testing">测试中…</string>
+    <string name="chat_phrase_searching">搜索中…</string>
+    <string name="chat_phrase_verifying">验证中…</string>
+    <string name="chat_phrase_cross_referencing">交叉核对中…</string>
+    <string name="chat_phrase_checking">核查中…</string>
+    <string name="chat_attach_take_photo">拍照</string>
+    <string name="chat_attach_gallery">从相册选择</string>
+    <string name="chat_attach_file">选择文件</string>
+    <string name="chat_attach_no_camera">没有可用的相机应用</string>
+    <string name="chat_attach_image_failed">无法读取该图片</string>
+</resources>

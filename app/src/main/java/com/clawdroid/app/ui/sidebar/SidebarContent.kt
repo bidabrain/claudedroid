@@ -1,6 +1,20 @@
 package com.clawdroid.app.ui.sidebar
 
 import androidx.compose.animation.animateColorAsState
+import java.io.File
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
+import com.clawdroid.app.core.engine.AgentRunManager
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material.icons.rounded.PushPin
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import android.content.Context
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -64,6 +78,8 @@ import com.clawdroid.app.data.db.ProjectEntity
 import com.clawdroid.app.ui.theme.Dimens
 import kotlinx.coroutines.launch
 import java.util.UUID
+import androidx.compose.ui.res.stringResource
+import com.clawdroid.app.R
 
 private data class NavItem(
     val label: String,
@@ -95,15 +111,29 @@ fun SidebarContent(
     var newProjectName by remember { mutableStateOf("") }
     var showAllChats by remember { mutableStateOf(false) }
 
+    val chatActions = ChatRowActions(
+        onTogglePin = { chat -> scope.launch { db.conversations().setPinned(chat.id, !chat.pinned) } },
+        onRename = { chat, title -> scope.launch { db.conversations().rename(chat.id, title) } },
+        onDelete = { chat ->
+            scope.launch {
+                AgentRunManager.stopRun(chat.id)
+                withContext(Dispatchers.IO) { deleteAttachmentFiles(context, db, chat.id) }
+                // Messages and tool calls cascade. If this was the open chat, the chat screen
+                // switches to the most recent remaining one (or creates a new one).
+                db.conversations().deleteById(chat.id)
+            }
+        },
+    )
+
     val navItems = listOf(
-        NavItem("Terminal", Icons.Rounded.Terminal, onNavigateToTerminal),
-        NavItem("Agent Config", Icons.Rounded.Tune, onNavigateToAgentConfig),
-        NavItem("Audio", Icons.Rounded.Album, onNavigateToAudio),
-        NavItem("Skills", Icons.Rounded.Extension, onNavigateToSkills),
-        NavItem("Channels", Icons.Rounded.Cable, onNavigateToChannels),
+        NavItem(stringResource(R.string.general_nav_terminal), Icons.Rounded.Terminal, onNavigateToTerminal),
+        NavItem(stringResource(R.string.general_nav_agent_config), Icons.Rounded.Tune, onNavigateToAgentConfig),
+        NavItem(stringResource(R.string.general_nav_audio), Icons.Rounded.Album, onNavigateToAudio),
+        NavItem(stringResource(R.string.general_nav_skills), Icons.Rounded.Extension, onNavigateToSkills),
+        NavItem(stringResource(R.string.general_nav_channels), Icons.Rounded.Cable, onNavigateToChannels),
         NavItem("MCP", Icons.Rounded.Api, onNavigateToMcp),
-        NavItem("Automations", Icons.Rounded.Autorenew, onNavigateToAutomations),
-        NavItem("Settings", Icons.Rounded.Settings, onNavigateToSettings),
+        NavItem(stringResource(R.string.general_nav_automations), Icons.Rounded.Autorenew, onNavigateToAutomations),
+        NavItem(stringResource(R.string.general_nav_settings), Icons.Rounded.Settings, onNavigateToSettings),
     )
 
     Column(
@@ -116,7 +146,7 @@ fun SidebarContent(
         Spacer(modifier = Modifier.height(Dimens.sm))
 
         Text(
-            text = "🐙 ClawDroid",
+            text = "ClaudeDroid",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -125,7 +155,7 @@ fun SidebarContent(
         Spacer(modifier = Modifier.height(Dimens.xl))
 
         // Navigation items
-        SectionLabel("Navigation")
+        SectionLabel(stringResource(R.string.general_sidebar_navigation))
         Spacer(modifier = Modifier.height(Dimens.sm))
 
         navItems.forEach { item ->
@@ -143,14 +173,14 @@ fun SidebarContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            SectionLabel("Chats")
+            SectionLabel(stringResource(R.string.general_sidebar_chats))
             IconButton(
                 onClick = { onNewConversation(null) },
                 modifier = Modifier.size(28.dp),
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Add,
-                    contentDescription = "New chat",
+                    contentDescription = stringResource(R.string.general_sidebar_new_chat),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(18.dp),
                 )
@@ -158,22 +188,25 @@ fun SidebarContent(
         }
         Spacer(modifier = Modifier.height(Dimens.sm))
 
-        val standaloneChats = conversations.filter { it.projectId == null }.sortedByDescending { it.updatedAt }
+        val standaloneChats = conversations.filter { it.projectId == null }
+            .sortedWith(compareByDescending<ConversationEntity> { it.pinned }.thenByDescending { it.updatedAt })
         if (standaloneChats.isEmpty()) {
-            EmptyLabel("No chats yet. Tap + to start.")
+            EmptyLabel(stringResource(R.string.general_sidebar_no_chats))
         } else {
             val visibleChats = if (showAllChats) standaloneChats else standaloneChats.take(4)
             visibleChats.forEach { chat ->
                 ChatRow(
-                    title = chat.title,
+                    chat = chat,
+                    title = displayChatTitle(chat.title),
                     selected = chat.id == activeConversationId,
                     onClick = { onSelectConversation(chat.id) },
+                    actions = chatActions,
                 )
             }
             if (standaloneChats.size > 4) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = if (showAllChats) "Show less" else "Show more (${standaloneChats.size - 4} more)",
+                    text = if (showAllChats) stringResource(R.string.general_sidebar_show_less) else stringResource(R.string.general_sidebar_show_more, standaloneChats.size - 4),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier
@@ -193,14 +226,14 @@ fun SidebarContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            SectionLabel("Projects")
+            SectionLabel(stringResource(R.string.general_sidebar_projects))
             IconButton(
                 onClick = { showCreateProject = true },
                 modifier = Modifier.size(28.dp),
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Add,
-                    contentDescription = "New project",
+                    contentDescription = stringResource(R.string.general_sidebar_new_project_cd),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(18.dp),
                 )
@@ -209,7 +242,7 @@ fun SidebarContent(
         Spacer(modifier = Modifier.height(Dimens.sm))
 
         if (projects.isEmpty()) {
-            EmptyLabel("No projects yet.")
+            EmptyLabel(stringResource(R.string.general_sidebar_no_projects))
         } else {
             projects.forEach { project ->
                 ProjectSection(
@@ -218,6 +251,7 @@ fun SidebarContent(
                     activeConversationId = activeConversationId,
                     onSelectConversation = onSelectConversation,
                     onNewThread = { onNewConversation(project.id) },
+                    chatActions = chatActions,
                 )
             }
         }
@@ -304,44 +338,159 @@ private fun NavRow(item: NavItem) {
     }
 }
 
+private class ChatRowActions(
+    val onTogglePin: (ConversationEntity) -> Unit,
+    val onRename: (ConversationEntity, String) -> Unit,
+    val onDelete: (ConversationEntity) -> Unit,
+)
+
+/** Tap opens the chat; long-press shows pin / rename / delete. */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChatRow(
+    chat: ConversationEntity,
     title: String,
     selected: Boolean,
     onClick: () -> Unit,
+    actions: ChatRowActions,
 ) {
+    val haptics = LocalHapticFeedback.current
+    var menuVisible by remember { mutableStateOf(false) }
+    var renaming by remember { mutableStateOf(false) }
+    var confirmingDelete by remember { mutableStateOf(false) }
     val bgColor by animateColorAsState(
         targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer
             .copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface,
         label = "chat_bg",
     )
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.small)
-            .background(bgColor)
-            .clickable(onClick = onClick)
-            .padding(horizontal = Dimens.md, vertical = Dimens.sm),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.ChatBubble,
-            contentDescription = null,
-            tint = if (selected) MaterialTheme.colorScheme.primary
-            else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-            modifier = Modifier.size(16.dp),
+    Box {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(MaterialTheme.shapes.small)
+                .background(bgColor)
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        menuVisible = true
+                    },
+                )
+                .padding(horizontal = Dimens.md, vertical = Dimens.sm),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.ChatBubble,
+                contentDescription = null,
+                tint = if (selected) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                modifier = Modifier.size(16.dp),
+            )
+            Spacer(modifier = Modifier.width(Dimens.sm))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodySmall,
+                color = if (selected) MaterialTheme.colorScheme.onSurface
+                else MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+            if (chat.pinned) {
+                Icon(
+                    imageVector = Icons.Rounded.PushPin,
+                    contentDescription = stringResource(R.string.general_chat_pinned_cd),
+                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                    modifier = Modifier.size(14.dp),
+                )
+            }
+        }
+
+        DropdownMenu(expanded = menuVisible, onDismissRequest = { menuVisible = false }) {
+            DropdownMenuItem(
+                text = { Text(stringResource(if (chat.pinned) R.string.general_chat_unpin else R.string.general_chat_pin)) },
+                leadingIcon = { Icon(Icons.Rounded.PushPin, contentDescription = null) },
+                onClick = {
+                    menuVisible = false
+                    actions.onTogglePin(chat)
+                },
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.general_chat_rename)) },
+                leadingIcon = { Icon(Icons.Rounded.Edit, contentDescription = null) },
+                onClick = {
+                    menuVisible = false
+                    renaming = true
+                },
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.general_chat_delete), color = MaterialTheme.colorScheme.error) },
+                leadingIcon = { Icon(Icons.Rounded.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
+                onClick = {
+                    menuVisible = false
+                    confirmingDelete = true
+                },
+            )
+        }
+    }
+
+    if (renaming) {
+        var newTitle by remember { mutableStateOf(title) }
+        AlertDialog(
+            onDismissRequest = { renaming = false },
+            title = { Text(stringResource(R.string.general_chat_rename_title)) },
+            text = {
+                OutlinedTextField(
+                    value = newTitle,
+                    onValueChange = { newTitle = it },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = newTitle.isNotBlank(),
+                    onClick = {
+                        actions.onRename(chat, newTitle.trim())
+                        renaming = false
+                    },
+                ) { Text(stringResource(R.string.general_chat_save)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { renaming = false }) { Text(stringResource(R.string.general_cancel)) }
+            },
         )
-        Spacer(modifier = Modifier.width(Dimens.sm))
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodySmall,
-            color = if (selected) MaterialTheme.colorScheme.onSurface
-            else MaterialTheme.colorScheme.onSurfaceVariant,
-            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+    }
+
+    if (confirmingDelete) {
+        AlertDialog(
+            onDismissRequest = { confirmingDelete = false },
+            title = { Text(stringResource(R.string.general_chat_delete_title)) },
+            text = { Text(stringResource(R.string.general_chat_delete_body, title)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        actions.onDelete(chat)
+                        confirmingDelete = false
+                    },
+                ) { Text(stringResource(R.string.general_chat_delete), color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmingDelete = false }) { Text(stringResource(R.string.general_cancel)) }
+            },
         )
+    }
+}
+
+/** Removes attachment copies owned by the app for a conversation; files elsewhere are left alone. */
+private suspend fun deleteAttachmentFiles(context: Context, db: ClawDroidDatabase, conversationId: String) {
+    val ownedRoots = listOf(context.cacheDir, context.filesDir).map { it.canonicalPath }
+    db.messages().getAll(conversationId).mapNotNull { it.mediaPath }.forEach { path ->
+        val file = File(path)
+        val canonical = runCatching { file.canonicalPath }.getOrNull() ?: return@forEach
+        if (ownedRoots.any { canonical.startsWith(it + File.separator) }) file.delete()
     }
 }
 
@@ -352,6 +501,7 @@ private fun ProjectSection(
     activeConversationId: String?,
     onSelectConversation: (String) -> Unit,
     onNewThread: () -> Unit,
+    chatActions: ChatRowActions,
 ) {
     var expanded by remember { mutableStateOf(true) }
 
@@ -385,9 +535,11 @@ private fun ProjectSection(
         if (expanded) {
             conversations.forEach { chat ->
                 ChatRow(
-                    title = chat.title,
+                    chat = chat,
+                    title = displayChatTitle(chat.title),
                     selected = chat.id == activeConversationId,
                     onClick = { onSelectConversation(chat.id) },
+                    actions = chatActions,
                 )
             }
 
@@ -407,7 +559,7 @@ private fun ProjectSection(
                 )
                 Spacer(modifier = Modifier.width(Dimens.sm))
                 Text(
-                    text = "New Thread",
+                    text = stringResource(R.string.general_sidebar_new_thread),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
                 )
@@ -433,13 +585,13 @@ private fun CreateProjectDialog(
             )
         },
         title = {
-            Text("New Project", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.general_sidebar_new_project_title), fontWeight = FontWeight.Bold)
         },
         text = {
             OutlinedTextField(
                 value = value,
                 onValueChange = onValueChange,
-                label = { Text("Project Name", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                label = { Text(stringResource(R.string.general_sidebar_project_name), color = MaterialTheme.colorScheme.onSurfaceVariant) },
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -452,15 +604,20 @@ private fun CreateProjectDialog(
         },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text("Create", color = MaterialTheme.colorScheme.primary)
+                Text(stringResource(R.string.general_create), color = MaterialTheme.colorScheme.primary)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.general_cancel), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         },
         containerColor = MaterialTheme.colorScheme.surface,
         shape = MaterialTheme.shapes.large,
     )
 }
+
+/** Default titles are stored in English in the DB; show them translated. */
+@Composable
+private fun displayChatTitle(title: String): String =
+    if (title == "New Agent Chat") stringResource(R.string.general_new_agent_chat) else title

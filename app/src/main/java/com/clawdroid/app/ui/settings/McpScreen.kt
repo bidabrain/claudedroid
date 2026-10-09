@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.clawdroid.app.R
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
@@ -93,7 +94,7 @@ fun McpScreen(
 
     LaunchedEffect(isNotionConnected) {
         if (isNotionConnected) {
-            notionWorkspace = com.clawdroid.app.core.service.NotionAuthManager.fetchWorkspaceName() ?: "Connected"
+            notionWorkspace = com.clawdroid.app.core.service.NotionAuthManager.fetchWorkspaceName() ?: context.getString(R.string.mcp_connected)
         }
     }
 
@@ -104,7 +105,7 @@ fun McpScreen(
 
     LaunchedEffect(isSpotifyConnected) {
         if (isSpotifyConnected) {
-            spotifyUser = com.clawdroid.app.core.service.SpotifyAuthManager.fetchDisplayName() ?: "Connected"
+            spotifyUser = com.clawdroid.app.core.service.SpotifyAuthManager.fetchDisplayName() ?: context.getString(R.string.mcp_connected)
         }
     }
 
@@ -153,16 +154,16 @@ fun McpScreen(
                         isGoogleConnected = true
                         googleConnectorEnabled = true
                         AppConfigManager.googleConnectorEnabled = true
-                        Toast.makeText(context, "Google connected successfully!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.mcp_google_connected_success), Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(context, "OAuth exchange failed. Check client secret.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, context.getString(R.string.mcp_oauth_exchange_failed), Toast.LENGTH_LONG).show()
                     }
                 }
             } else {
-                Toast.makeText(context, "OAuth failed: No server authorization code received.", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.mcp_oauth_no_auth_code), Toast.LENGTH_LONG).show()
             }
         } catch (e: Exception) {
-            Toast.makeText(context, "Sign-in error: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.mcp_sign_in_error, e.localizedMessage ?: ""), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -212,7 +213,7 @@ fun McpScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "MCP Settings",
+                        text = stringResource(R.string.mcp_settings_title),
                         style = MaterialTheme.typography.titleLarge.copy(
                             color = SoftWhite,
                             fontWeight = FontWeight.Bold,
@@ -224,7 +225,7 @@ fun McpScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.mcp_back),
                             tint = SoftWhite
                         )
                     }
@@ -252,7 +253,7 @@ fun McpScreen(
                 // ── Connectors Title ──
                 item {
                     Text(
-                        text = "Connectors",
+                        text = stringResource(R.string.mcp_connectors_title),
                         style = MaterialTheme.typography.titleSmall.copy(
                             color = MutedGray,
                             fontWeight = FontWeight.SemiBold
@@ -291,7 +292,7 @@ fun McpScreen(
                             googleSignInClient.signOut()
                             isGoogleConnected = false
                             googleEmail = ""
-                            Toast.makeText(context, "Google Account Disconnected", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.mcp_account_disconnected, "Google"), Toast.LENGTH_SHORT).show()
                         }
                     )
                 }
@@ -316,7 +317,7 @@ fun McpScreen(
                             com.clawdroid.app.core.service.GithubAuthManager.disconnect()
                             isGithubConnected = false
                             githubUsername = ""
-                            Toast.makeText(context, "GitHub Account Disconnected", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.mcp_account_disconnected, "GitHub"), Toast.LENGTH_SHORT).show()
                         }
                     )
                 }
@@ -341,7 +342,7 @@ fun McpScreen(
                             com.clawdroid.app.core.service.NotionAuthManager.disconnect()
                             isNotionConnected = false
                             notionWorkspace = ""
-                            Toast.makeText(context, "Notion Account Disconnected", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.mcp_account_disconnected, "Notion"), Toast.LENGTH_SHORT).show()
                         }
                     )
                 }
@@ -366,7 +367,7 @@ fun McpScreen(
                             com.clawdroid.app.core.service.SpotifyAuthManager.disconnect()
                             isSpotifyConnected = false
                             spotifyUser = ""
-                            Toast.makeText(context, "Spotify Account Disconnected", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.mcp_account_disconnected, "Spotify"), Toast.LENGTH_SHORT).show()
                         }
                     )
                 }
@@ -374,7 +375,7 @@ fun McpScreen(
                 // ── Subprocess Servers Title ──
                 item {
                     Text(
-                        text = "Local Sandboxed Servers",
+                        text = stringResource(R.string.mcp_local_servers),
                         style = MaterialTheme.typography.titleSmall.copy(
                             color = MutedGray,
                             fontWeight = FontWeight.SemiBold
@@ -413,7 +414,7 @@ fun McpScreen(
                         AppConfigManager.mcpServersConfig = updatedConfig
                         mcpConfigStr = updatedConfig
                         activeConfigDialogServer = null
-                        Toast.makeText(context, "${server.name} saved.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.mcp_server_saved, server.name), Toast.LENGTH_SHORT).show()
                     }
                 )
             }
@@ -468,7 +469,7 @@ private fun GoogleConnectorCard(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_google_logo),
-                        contentDescription = "Google Logo",
+                        contentDescription = stringResource(R.string.mcp_brand_logo, "Google"),
                         tint = Color.Unspecified,
                         modifier = Modifier
                             .size(22.dp)
@@ -484,7 +485,7 @@ private fun GoogleConnectorCard(
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = if (isConnected) email else "Connect Gmail & Calendar",
+                        text = if (isConnected) email else stringResource(R.string.mcp_google_subtitle),
                         color = if (isConnected) MutedGray else Color(0xFF4285F4),
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -512,7 +513,7 @@ private fun GoogleConnectorCard(
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = "Offline",
+                            text = stringResource(R.string.mcp_offline),
                             color = Color.Red,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold
@@ -538,7 +539,7 @@ private fun GoogleConnectorCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Sign in with Google",
+                        text = stringResource(R.string.mcp_sign_in_with, "Google"),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodyMedium
@@ -569,12 +570,12 @@ private fun GoogleConnectorCard(
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
-                                    text = "Gmail Access",
+                                    text = stringResource(R.string.mcp_gmail_access),
                                     color = SoftWhite,
                                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
                                 )
                                 Text(
-                                    text = "Allow reading/writing email & drafts",
+                                    text = stringResource(R.string.mcp_gmail_access_desc),
                                     color = MutedGray,
                                     fontSize = 11.sp
                                 )
@@ -612,12 +613,12 @@ private fun GoogleConnectorCard(
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
-                                    text = "Calendar Access",
+                                    text = stringResource(R.string.mcp_calendar_access),
                                     color = SoftWhite,
                                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
                                 )
                                 Text(
-                                    text = "Allow reading/updating primary calendar",
+                                    text = stringResource(R.string.mcp_calendar_access_desc),
                                     color = MutedGray,
                                     fontSize = 11.sp
                                 )
@@ -656,7 +657,7 @@ private fun GoogleConnectorCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Disconnect Account",
+                        text = stringResource(R.string.mcp_disconnect_account),
                         color = Color.Red,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodyMedium
@@ -758,13 +759,13 @@ private fun McpServerCard(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Edit,
-                        contentDescription = "Edit",
+                        contentDescription = stringResource(R.string.mcp_edit),
                         tint = EmberOrange,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Edit Config",
+                        text = stringResource(R.string.mcp_edit_config),
                         color = EmberOrange,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     )
@@ -783,13 +784,13 @@ private fun McpServerCard(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Notes,
-                        contentDescription = "Logs",
+                        contentDescription = stringResource(R.string.mcp_logs),
                         tint = SoftWhite,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "View Logs",
+                        text = stringResource(R.string.mcp_view_logs),
                         color = SoftWhite,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     )
@@ -819,7 +820,7 @@ private fun McpConfigDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Configure ${server.name.replaceFirstChar { it.uppercaseChar() }}",
+                text = stringResource(R.string.mcp_configure_server, server.name.replaceFirstChar { it.uppercaseChar() }),
                 color = SoftWhite,
                 fontWeight = FontWeight.Bold
             )
@@ -830,7 +831,7 @@ private fun McpConfigDialog(
                 OutlinedTextField(
                     value = cmd,
                     onValueChange = { cmd = it },
-                    label = { Text("Command") },
+                    label = { Text(stringResource(R.string.mcp_command)) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = EmberOrange,
                         unfocusedBorderColor = GlassBorderDim,
@@ -845,7 +846,7 @@ private fun McpConfigDialog(
                 OutlinedTextField(
                     value = argsStr,
                     onValueChange = { argsStr = it },
-                    label = { Text("Arguments") },
+                    label = { Text(stringResource(R.string.mcp_arguments)) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = EmberOrange,
                         unfocusedBorderColor = GlassBorderDim,
@@ -861,7 +862,7 @@ private fun McpConfigDialog(
                     OutlinedTextField(
                         value = token,
                         onValueChange = { token = it },
-                        label = { Text("GitHub Token (PAT)") },
+                        label = { Text(stringResource(R.string.mcp_github_token_label)) },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = EmberOrange,
                             unfocusedBorderColor = GlassBorderDim,
@@ -883,12 +884,12 @@ private fun McpConfigDialog(
                     onSave(server.copy(command = cmd, args = arguments, env = environment))
                 }
             ) {
-                Text("Save", color = EmberOrange, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.mcp_save), color = EmberOrange, fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = MutedGray)
+                Text(stringResource(R.string.mcp_cancel), color = MutedGray)
             }
         }
     )
@@ -912,7 +913,7 @@ private fun McpLogsBottomSheet(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             Text(
-                text = "Logs: $serverName",
+                text = stringResource(R.string.mcp_logs_title, serverName),
                 style = MaterialTheme.typography.titleMedium.copy(
                     color = SoftWhite,
                     fontWeight = FontWeight.Bold
@@ -1048,7 +1049,7 @@ private fun GithubConnectorCard(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Code,
-                        contentDescription = "GitHub Logo",
+                        contentDescription = stringResource(R.string.mcp_brand_logo, "GitHub"),
                         tint = if (isConnected && connectorEnabled) SoftWhite else MutedGray,
                         modifier = Modifier.size(22.dp)
                     )
@@ -1062,7 +1063,7 @@ private fun GithubConnectorCard(
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = if (isConnected) (if (username.isBlank() || username == "Connected") "Connected" else "@$username") else "Connect repositories & issues",
+                        text = if (isConnected) (if (username.isBlank() || username == "Connected") stringResource(R.string.mcp_connected) else "@$username") else stringResource(R.string.mcp_github_subtitle),
                         color = if (isConnected) MutedGray else Color(0xFF808080),
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -1088,7 +1089,7 @@ private fun GithubConnectorCard(
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = "Offline",
+                            text = stringResource(R.string.mcp_offline),
                             color = Color.Red,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold
@@ -1113,7 +1114,7 @@ private fun GithubConnectorCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Sign in with GitHub",
+                        text = stringResource(R.string.mcp_sign_in_with, "GitHub"),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodyMedium
@@ -1138,7 +1139,7 @@ private fun GithubConnectorCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Disconnect Account",
+                        text = stringResource(R.string.mcp_disconnect_account),
                         color = Color.Red,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodyMedium
@@ -1182,7 +1183,7 @@ private fun NotionConnectorCard(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Description,
-                        contentDescription = "Notion Logo",
+                        contentDescription = stringResource(R.string.mcp_brand_logo, "Notion"),
                         tint = if (isConnected && connectorEnabled) SoftWhite else MutedGray,
                         modifier = Modifier.size(22.dp)
                     )
@@ -1196,7 +1197,7 @@ private fun NotionConnectorCard(
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = if (isConnected) workspace else "Connect docs & databases",
+                        text = if (isConnected) workspace else stringResource(R.string.mcp_notion_subtitle),
                         color = if (isConnected) MutedGray else Color(0xFF808080),
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -1222,7 +1223,7 @@ private fun NotionConnectorCard(
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = "Offline",
+                            text = stringResource(R.string.mcp_offline),
                             color = Color.Red,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold
@@ -1247,7 +1248,7 @@ private fun NotionConnectorCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Sign in with Notion",
+                        text = stringResource(R.string.mcp_sign_in_with, "Notion"),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodyMedium
@@ -1272,7 +1273,7 @@ private fun NotionConnectorCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Disconnect Account",
+                        text = stringResource(R.string.mcp_disconnect_account),
                         color = Color.Red,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodyMedium
@@ -1316,7 +1317,7 @@ private fun SpotifyConnectorCard(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.MusicNote,
-                        contentDescription = "Spotify Logo",
+                        contentDescription = stringResource(R.string.mcp_brand_logo, "Spotify"),
                         tint = if (isConnected && connectorEnabled) Color(0xFF1DB954) else MutedGray,
                         modifier = Modifier.size(22.dp)
                     )
@@ -1330,7 +1331,7 @@ private fun SpotifyConnectorCard(
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = if (isConnected) username else "Control playback & search music",
+                        text = if (isConnected) username else stringResource(R.string.mcp_spotify_subtitle),
                         color = if (isConnected) MutedGray else Color(0xFF1DB954),
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -1356,7 +1357,7 @@ private fun SpotifyConnectorCard(
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = "Offline",
+                            text = stringResource(R.string.mcp_offline),
                             color = Color.Red,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold
@@ -1381,7 +1382,7 @@ private fun SpotifyConnectorCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Sign in with Spotify",
+                        text = stringResource(R.string.mcp_sign_in_with, "Spotify"),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodyMedium
@@ -1406,7 +1407,7 @@ private fun SpotifyConnectorCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Disconnect Account",
+                        text = stringResource(R.string.mcp_disconnect_account),
                         color = Color.Red,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodyMedium

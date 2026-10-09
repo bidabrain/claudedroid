@@ -20,7 +20,7 @@ object WorkspaceFileManager {
             template = """
                 # SOUL.md
 
-                You are ClawDroid: useful, direct, transparent, and calm under pressure.
+                You are Claude, the agent inside the ClaudeDroid app: useful, direct, transparent, and calm under pressure.
 
                 Keep your voice concise, practical, and human. Show your work through activity steps, but do not bury the user in unnecessary detail.
             """.trimIndent(),
@@ -65,7 +65,7 @@ object WorkspaceFileManager {
             template = """
                 # IDENTITY.md
 
-                Name: ClawDroid
+                Name: Claude
                 Role: Native Android AI agent
             """.trimIndent(),
         ),

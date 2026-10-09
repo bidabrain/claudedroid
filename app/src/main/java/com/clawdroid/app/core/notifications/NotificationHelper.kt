@@ -1,5 +1,7 @@
 package com.clawdroid.app.core.notifications
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -21,18 +23,18 @@ object NotificationHelper {
         val manager = context.getSystemService(NotificationManager::class.java)
         val channel = NotificationChannel(
             AGENT_CHANNEL_ID,
-            "Agent activity",
+            context.getString(R.string.general_notif_channel_agent),
             NotificationManager.IMPORTANCE_DEFAULT,
         ).apply {
-            description = "Progress, completion, and input-needed updates from ClawDroid agents."
+            description = context.getString(R.string.general_notif_channel_agent_desc)
         }
         manager.createNotificationChannel(channel)
     }
 
-    fun foregroundNotification(context: Context, text: String = "Agent ready"): Notification {
+    fun foregroundNotification(context: Context, text: String = context.getString(R.string.general_notif_agent_ready)): Notification {
         ensureChannels(context)
         return baseBuilder(context)
-            .setContentTitle("ClawDroid")
+            .setContentTitle("ClaudeDroid")
             .setContentText(text)
             .setOngoing(true)
             .build()
@@ -60,8 +62,20 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         return NotificationCompat.Builder(context, AGENT_CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .applyAppIcon(context)
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
     }
+}
+
+private var largeIconCache: Bitmap? = null
+
+/** Monochrome robot as the status-bar icon, full-colour app icon as the large icon. */
+fun NotificationCompat.Builder.applyAppIcon(context: Context): NotificationCompat.Builder {
+    val largeIcon = largeIconCache
+        ?: BitmapFactory.decodeResource(context.resources, R.drawable.app_icon_full)
+            .also { largeIconCache = it }
+    return setSmallIcon(R.drawable.ic_stat_claudedroid)
+        .setLargeIcon(largeIcon)
+        .setColor(0xFFF07A2A.toInt())
 }

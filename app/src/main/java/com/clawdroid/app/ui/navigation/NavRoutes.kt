@@ -13,7 +13,6 @@ sealed class NavRoutes(val route: String, val label: String) {
     data object SettingsMCP : NavRoutes("settings/mcp", "MCP")
     data object SettingsConfig : NavRoutes("settings/config", "Config")
     data object SettingsAutomations : NavRoutes("settings/automations", "Automations")
-    data object Hatching : NavRoutes("hatching", "Hatching")
     data object PostSetup : NavRoutes("post_setup", "Post Setup")
     data object CronJobs : NavRoutes("cron_jobs", "Cron Jobs")
     data object ConfigEditor : NavRoutes("config_editor/{fileType}", "Config Editor") {

@@ -22,6 +22,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
+import com.clawdroid.app.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -93,7 +95,7 @@ fun PiperDownloadDialog(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = if (animatedProgress < 1f) "Downloading Voice Model" else "Ready!",
+                    text = if (animatedProgress < 1f) stringResource(R.string.config_piper_downloading) else stringResource(R.string.config_piper_ready),
                     style = MaterialTheme.typography.titleMedium,
                     color = SoftWhite,
                     fontWeight = FontWeight.SemiBold,
@@ -101,9 +103,9 @@ fun PiperDownloadDialog(
 
                 Text(
                     text = if (animatedProgress < 1f) {
-                        "Setting up Piper neural TTS engine…"
+                        stringResource(R.string.config_piper_setting_up)
                     } else {
-                        "Piper neural TTS is ready to use."
+                        stringResource(R.string.config_piper_ready_desc)
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MutedGray,

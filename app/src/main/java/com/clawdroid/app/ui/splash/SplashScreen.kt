@@ -28,6 +28,7 @@ import com.clawdroid.app.ui.theme.MutedGray
 import com.clawdroid.app.ui.theme.SoftWhite
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun SplashScreen(
@@ -123,8 +124,8 @@ fun SplashScreen(
         ) {
             // Logo
             Image(
-                painter = painterResource(id = R.drawable.clawdroid_logo),
-                contentDescription = "ClawDroid Logo",
+                painter = painterResource(id = R.drawable.app_icon_full),
+                contentDescription = stringResource(R.string.general_splash_logo_cd),
                 modifier = Modifier
                     .size(140.dp)
                     .scale(logoScale.value)
@@ -135,7 +136,7 @@ fun SplashScreen(
 
             // Title - White with dynamic pulsing neon glow shadow and slide-up transition
             Text(
-                text = "ClawDroid",
+                text = "ClaudeDroid",
                 style = MaterialTheme.typography.headlineLarge.copy(
                     color = SoftWhite,
                     fontWeight = FontWeight.Bold,
@@ -159,7 +160,7 @@ fun SplashScreen(
 
             // Subtitle - Sleek subtitle with slide-up transition
             Text(
-                text = "Your AI Agent",
+                text = stringResource(R.string.general_splash_subtitle),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     color = MutedGray,
                     fontWeight = FontWeight.Light,

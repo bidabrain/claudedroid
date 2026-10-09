@@ -23,7 +23,7 @@ object AgentSmokeTester {
         val initialMessages = listOf(
             ChatMessage(
                 role = "system",
-                content = "You are testing ClawDroid tool calling. You must call execute_command exactly once, then summarize the tool result after it is provided.",
+                content = "You are testing ClaudeDroid tool calling. You must call execute_command exactly once, then summarize the tool result after it is provided.",
             ),
             ChatMessage(
                 role = "user",
@@ -73,7 +73,7 @@ object AgentSmokeTester {
                 ),
                 ChatMessage(
                     role = "user",
-                    content = "Reply with exactly: ClawDroid tool loop ok.",
+                    content = "Reply with exactly: ClaudeDroid tool loop ok.",
                 ),
             ),
         ).collect { event ->

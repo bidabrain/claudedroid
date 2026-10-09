@@ -157,7 +157,7 @@ class McpClient(
                     .put("resources", JSONObject())
                 )
                 .put("clientInfo", JSONObject()
-                    .put("name", "ClawDroid-Client")
+                    .put("name", "ClaudeDroid-Client")
                     .put("version", "0.1.0")
                 )
 

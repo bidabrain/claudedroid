@@ -105,7 +105,7 @@ object ScreenCaptureManager {
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
         val wakeLock = powerManager.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK,
-            "ClawDroid:ScreenCapture",
+            "ClaudeDroid:ScreenCapture",
         )
         return try {
             wakeLock.acquire(10_000L)

@@ -4,7 +4,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 data class AgentConfig(
-    val name: String = "Nova",
+    val name: String = "Claude",
     val personality: String = "Professional",
     val purpose: String = "General assistant",
     val providerBaseUrl: String = "",
@@ -32,7 +32,7 @@ data class AgentConfig(
 
     companion object {
         fun fromJson(json: JSONObject): AgentConfig = AgentConfig(
-            name = json.optString("name", "Nova"),
+            name = json.optString("name", "Claude"),
             personality = json.optString("personality", "Professional"),
             purpose = json.optString("purpose", "General assistant"),
             providerBaseUrl = json.optString("provider_base_url", ""),

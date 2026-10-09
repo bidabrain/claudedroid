@@ -23,7 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.clawdroid.app.R
 import com.clawdroid.app.ui.theme.ActivePurple
 import com.clawdroid.app.ui.theme.EmberOrange
 import com.clawdroid.app.ui.theme.ErrorRed
@@ -85,7 +87,7 @@ private fun StopButton(
         ) {
             Icon(
                 imageVector = Icons.Filled.Stop,
-                contentDescription = "Stop voice recording",
+                contentDescription = stringResource(R.string.chat_cd_stop_voice),
                 tint = Color.White,
                 modifier = Modifier.size(24.dp)
             )
@@ -121,7 +123,7 @@ private fun ListenButton(
         ) {
             Icon(
                 imageVector = Icons.Filled.Mic,
-                contentDescription = "Listen for voice input",
+                contentDescription = stringResource(R.string.chat_cd_listen_voice),
                 tint = Color.White,
                 modifier = Modifier.size(24.dp)
             )

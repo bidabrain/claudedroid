@@ -23,7 +23,7 @@ object AndroidControlTools {
         val service = ScreenReaderService.instance
             ?: return@runTool errorResult(
                 "accessibility_service_not_running",
-                "User must enable ClawDroid Screen Control in Settings > Accessibility",
+                "User must enable ClaudeDroid Screen Control in Settings > Accessibility",
             )
 
         val tree = service.dumpNodeTree()
@@ -356,7 +356,7 @@ object AndroidControlTools {
 
     private fun serviceNotRunning(): JSONObject = errorResult(
         "accessibility_service_not_running",
-        "User must enable ClawDroid Screen Control in Settings > Accessibility",
+        "User must enable ClaudeDroid Screen Control in Settings > Accessibility",
     )
 
     private fun successResult(action: String, ok: Boolean): JSONObject = JSONObject()

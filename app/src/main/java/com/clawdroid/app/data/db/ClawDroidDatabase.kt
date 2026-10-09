@@ -1,6 +1,7 @@
 package com.clawdroid.app.data.db
 
 import android.content.Context
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -13,6 +14,8 @@ import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Update
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.flow.Flow
 
 @Entity(tableName = "projects")
@@ -49,6 +52,7 @@ data class ConversationEntity(
     val totalCompletionTokens: Long = 0,
     val totalCachedTokens: Long = 0,
     val modelId: String = "",
+    @ColumnInfo(defaultValue = "0") val pinned: Boolean = false,
 )
 
 @Entity(
@@ -152,10 +156,10 @@ interface ProjectDao {
 
 @Dao
 interface ConversationDao {
-    @Query("SELECT * FROM conversations ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM conversations ORDER BY pinned DESC, updatedAt DESC")
     fun observeConversations(): Flow<List<ConversationEntity>>
 
-    @Query("SELECT * FROM conversations WHERE projectId = :projectId ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM conversations WHERE projectId = :projectId ORDER BY pinned DESC, updatedAt DESC")
     fun observeForProject(projectId: String): Flow<List<ConversationEntity>>
 
     @Query("SELECT * FROM conversations WHERE id = :id LIMIT 1")
@@ -170,10 +174,16 @@ interface ConversationDao {
     @Query("DELETE FROM conversations WHERE id = :id")
     suspend fun deleteById(id: String)
 
-    @Query("DELETE FROM conversations WHERE id != :currentId AND id NOT IN (SELECT DISTINCT conversationId FROM messages)")
+    @Query("UPDATE conversations SET pinned = :pinned WHERE id = :id")
+    suspend fun setPinned(id: String, pinned: Boolean)
+
+    @Query("UPDATE conversations SET title = :title WHERE id = :id")
+    suspend fun rename(id: String, title: String)
+
+    @Query("DELETE FROM conversations WHERE id != :currentId AND pinned = 0 AND id NOT IN (SELECT DISTINCT conversationId FROM messages)")
     suspend fun pruneEmptyExcept(currentId: String)
 
-    @Query("DELETE FROM conversations WHERE id NOT IN (SELECT DISTINCT conversationId FROM messages)")
+    @Query("DELETE FROM conversations WHERE pinned = 0 AND id NOT IN (SELECT DISTINCT conversationId FROM messages)")
     suspend fun pruneAllEmpty()
 
     @Query("SELECT * FROM conversations ORDER BY updatedAt DESC LIMIT 1")
@@ -268,7 +278,7 @@ interface SettingsDao {
         AutomationEntity::class,
         SettingsEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 abstract class ClawDroidDatabase : RoomDatabase() {
@@ -287,7 +297,15 @@ abstract class ClawDroidDatabase : RoomDatabase() {
                 context.applicationContext,
                 ClawDroidDatabase::class.java,
                 "clawdroid.db",
-            ).fallbackToDestructiveMigration(true).build().also { instance = it }
+            ).addMigrations(MIGRATION_3_4)
+                .fallbackToDestructiveMigration(true).build().also { instance = it }
+        }
+
+        /** Adds conversation pinning without dropping existing chats. */
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE conversations ADD COLUMN pinned INTEGER NOT NULL DEFAULT 0")
+            }
         }
     }
 }

@@ -55,9 +55,9 @@ object MessageBuilder {
             appendLine("- Use tools when useful. Keep the user informed.")
             appendLine("- Prefer concrete action over vague advice.")
             appendLine("- You have full filesystem access inside the sandbox at ${File.separator}data${File.separator}data${File.separator}com.clawdroid.app${File.separator}files.")
-            appendLine("- Save important files to the shared folder /storage/emulated/0/Documents/ClawDroid/Output/ so the user can access them.")
+            appendLine("- Save important files to the shared folder /storage/emulated/0/Documents/ClaudeDroid/Output/ so the user can access them.")
             appendLine("- For downloaded models, packages, and agent artifacts, use the sandbox internal storage.")
-            appendLine("- Never ask for confirmation before writing files in the sandbox or shared Documents/ClawDroid folders.")
+            appendLine("- Never ask for confirmation before writing files in the sandbox or shared Documents/ClaudeDroid folders.")
             appendLine("- CRITICAL: Before sending ANY message to an external service (WhatsApp, SMS, email, Slack, Telegram, etc.), you MUST ask the user what to say first. Never auto-reply.")
             appendLine("- If the user tells you to send a specific message, you may send it without further confirmation.")
             appendLine("- Do NOT use web.whatsapp.com or any browser-based messaging interface to send messages without explicit user approval.")
@@ -65,7 +65,7 @@ object MessageBuilder {
             if (workspaceContext.isNotBlank()) {
                 appendLine()
                 appendLine("## Workspace Files")
-                appendLine("These user-editable ClawDroid workspace files shape identity, operating rules, tool notes, user preferences, and background tasks:")
+                appendLine("These user-editable ClaudeDroid workspace files shape identity, operating rules, tool notes, user preferences, and background tasks:")
                 appendLine(workspaceContext)
             }
 

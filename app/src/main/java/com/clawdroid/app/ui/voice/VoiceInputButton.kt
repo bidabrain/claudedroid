@@ -31,6 +31,8 @@ import com.clawdroid.app.ui.theme.GlassBorderDim
 import com.clawdroid.app.ui.theme.GlassFill
 import com.clawdroid.app.ui.theme.MoltenYellow
 import com.clawdroid.app.ui.theme.MutedGray
+import androidx.compose.ui.res.stringResource
+import com.clawdroid.app.R
 
 enum class MicState { Idle, Recording, Transcribing }
 
@@ -52,7 +54,7 @@ fun VoiceInputButton(
                 IconButton(onClick = onToggleRecording, modifier = Modifier.size(36.dp)) {
                     Icon(
                         imageVector = Icons.Filled.Mic,
-                        contentDescription = "Voice input",
+                        contentDescription = stringResource(R.string.general_voice_input),
                         tint = MutedGray,
                         modifier = Modifier.size(18.dp),
                     )
@@ -112,7 +114,7 @@ fun VoiceInputButton(
                 IconButton(onClick = onToggleRecording, modifier = Modifier.size(40.dp)) {
                     Icon(
                         imageVector = Icons.Filled.Mic,
-                        contentDescription = "Stop recording",
+                        contentDescription = stringResource(R.string.general_voice_stop_recording),
                         tint = FireRed,
                         modifier = Modifier.size(20.dp),
                     )
@@ -131,7 +133,7 @@ fun VoiceInputButton(
                 IconButton(onClick = {}, enabled = false, modifier = Modifier.size(36.dp)) {
                     Icon(
                         imageVector = Icons.Filled.MicOff,
-                        contentDescription = "Transcribing…",
+                        contentDescription = stringResource(R.string.general_voice_transcribing),
                         tint = MutedGray.copy(alpha = 0.38f),
                         modifier = Modifier.size(18.dp),
                     )

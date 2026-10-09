@@ -34,7 +34,7 @@ private fun fetch(url: String): String {
         requestMethod = "GET"
         connectTimeout = 15_000
         readTimeout = 30_000
-        setRequestProperty("User-Agent", "ClawDroid/0.1 (+https://clawdroid.local)")
+        setRequestProperty("User-Agent", "ClaudeDroid/0.1 (+https://clawdroid.local)")
     }
     val stream = if (connection.responseCode in 200..299) connection.inputStream else connection.errorStream
     return stream.bufferedReader().use { it.readText() }

@@ -171,7 +171,7 @@ object AssistantInvocationRouter {
         val activityHint = contextSnapshot?.sourceActivity ?: "unknown"
         return buildString {
             appendLine("You were opened as an Android assistant overlay on top of the user's current app.")
-            appendLine("Use the same Android control tools and workflow you normally use in the ClawDroid app.")
+            appendLine("Use the same Android control tools and workflow you normally use in the ClaudeDroid app.")
             appendLine("Current app package: $packageHint")
             appendLine("Current app activity: $activityHint")
             appendLine("If the user asks to send a specific message in the current chat, use send_message_in_current_chat first.")

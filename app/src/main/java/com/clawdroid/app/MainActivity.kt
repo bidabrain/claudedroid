@@ -1,5 +1,6 @@
 package com.clawdroid.app
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -12,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.clawdroid.app.core.automation.AutomationScheduler
 import com.clawdroid.app.core.config.AppConfigManager
+import com.clawdroid.app.core.config.AppLanguage
 import com.clawdroid.app.core.notifications.NotificationHelper
 import com.clawdroid.app.core.service.ServiceManager
 import com.clawdroid.app.ui.navigation.AppNavHost
@@ -24,6 +26,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private val startVoiceSessionTrigger = mutableStateOf(false)
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()

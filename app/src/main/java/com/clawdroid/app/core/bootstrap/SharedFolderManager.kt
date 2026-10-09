@@ -5,7 +5,7 @@ import java.io.File
 
 object SharedFolderManager {
     fun ensureSharedFolders(): File {
-        val root = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "ClawDroid")
+        val root = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "ClaudeDroid")
         listOf(
             root,
             File(root, "Inbox"),

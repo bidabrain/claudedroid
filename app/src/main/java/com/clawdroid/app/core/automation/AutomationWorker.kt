@@ -13,6 +13,7 @@ import android.content.Intent
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.first
 import java.io.File
+import com.clawdroid.app.R
 
 class AutomationWorker(
     appContext: Context,
@@ -42,7 +43,10 @@ class AutomationWorker(
                         val heartbeatContent = heartbeatFile.readText().trim()
                         if (heartbeatContent.isNotBlank()) {
                             val existingList = db.conversations().observeForProject(project.id).first()
-                            val existing = existingList.firstOrNull { it.title == "Autonomous Heartbeat" }
+                            val heartbeatTitle = applicationContext.getString(R.string.general_heartbeat_chat_title)
+                            val existing = existingList.firstOrNull {
+                                it.id == "heartbeat_chat_${project.id}" || it.title == "Autonomous Heartbeat" || it.title == heartbeatTitle
+                            }
                             val conversationId = if (existing != null) {
                                 existing.id
                             } else {
@@ -51,7 +55,7 @@ class AutomationWorker(
                                     ConversationEntity(
                                         id = newId,
                                         projectId = project.id,
-                                        title = "Autonomous Heartbeat",
+                                        title = heartbeatTitle,
                                         createdAt = System.currentTimeMillis(),
                                         updatedAt = System.currentTimeMillis(),
                                         status = "idle",

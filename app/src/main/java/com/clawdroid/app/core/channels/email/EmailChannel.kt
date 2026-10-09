@@ -75,7 +75,7 @@ class EmailChannel : AuthenticatedChannel {
             val intent = Intent(Intent.ACTION_SENDTO).apply {
                 data = Uri.parse("mailto:$target")
                 putExtra(Intent.EXTRA_EMAIL, arrayOf(target))
-                putExtra(Intent.EXTRA_SUBJECT, "ClawDroid Agent")
+                putExtra(Intent.EXTRA_SUBJECT, "ClaudeDroid Agent")
                 putExtra(Intent.EXTRA_TEXT, text)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }

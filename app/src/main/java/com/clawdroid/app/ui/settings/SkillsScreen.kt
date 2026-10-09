@@ -42,6 +42,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.clawdroid.app.R
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -79,15 +81,15 @@ fun SkillsScreen(onBack: () -> Unit) {
         containerColor = DeepBlack,
         topBar = {
             TopAppBar(
-                title = { Text("Skills", color = SoftWhite, fontWeight = FontWeight.SemiBold) },
+                title = { Text(stringResource(R.string.config_skills_title), color = SoftWhite, fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = SoftWhite)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.config_back), tint = SoftWhite)
                     }
                 },
                 actions = {
                     IconButton(onClick = { showCreateDialog = true }) {
-                        Icon(Icons.Rounded.Add, contentDescription = "Create skill", tint = SoftWhite)
+                        Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.config_skills_create_cd), tint = SoftWhite)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = DeepBlack),
@@ -103,13 +105,13 @@ fun SkillsScreen(onBack: () -> Unit) {
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            GlowText("Skill Settings", style = MaterialTheme.typography.titleLarge)
+            GlowText(stringResource(R.string.config_skills_settings_header), style = MaterialTheme.typography.titleLarge)
             GlassCard {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Autonomous Heartbeat", color = SoftWhite, fontWeight = FontWeight.Bold)
-                            Text("Run checklist tasks from HEARTBEAT.md", color = MutedGray, style = MaterialTheme.typography.bodySmall)
+                            Text(stringResource(R.string.config_skills_heartbeat_title), color = SoftWhite, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.config_skills_heartbeat_desc, "HEARTBEAT.md"), color = MutedGray, style = MaterialTheme.typography.bodySmall)
                         }
                         Switch(
                             checked = heartbeatEnabled,
@@ -127,7 +129,7 @@ fun SkillsScreen(onBack: () -> Unit) {
                                 heartbeatInterval = it.filter(Char::isDigit).take(3)
                                 AppConfigManager.heartbeatIntervalMin = heartbeatInterval.toIntOrNull()?.coerceIn(15, 120) ?: 15
                             },
-                            placeholder = "Interval minutes",
+                            placeholder = stringResource(R.string.config_skills_interval_minutes),
                         )
                     }
                 }
@@ -136,10 +138,10 @@ fun SkillsScreen(onBack: () -> Unit) {
             if (skills.isEmpty()) {
                 GlassCard {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text("No skills installed", color = SoftWhite, fontWeight = FontWeight.Bold)
-                        Text("Create a markdown skill to add behavior to the agent.", color = MutedGray)
+                        Text(stringResource(R.string.config_skills_empty_title), color = SoftWhite, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.config_skills_empty_desc), color = MutedGray)
                         GlassButton(onClick = { showCreateDialog = true }) {
-                            Text("Create Skill", color = SoftWhite, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.config_skills_create), color = SoftWhite, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
@@ -158,7 +160,7 @@ fun SkillsScreen(onBack: () -> Unit) {
                         onReset = {
                             SkillSettingsManager.resetBundled(context, skill.id)
                             reload()
-                            Toast.makeText(context, "Starter skill reset", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.config_skills_reset_toast), Toast.LENGTH_SHORT).show()
                         },
                     )
                 }
@@ -170,7 +172,7 @@ fun SkillsScreen(onBack: () -> Unit) {
     if (showCreateDialog) {
         AlertDialog(
             onDismissRequest = { showCreateDialog = false },
-            title = { Text("Create Skill", color = SoftWhite, fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.config_skills_create), color = SoftWhite, fontWeight = FontWeight.Bold) },
             text = {
                 GlassTextField(
                     value = newSkillName,
@@ -186,10 +188,10 @@ fun SkillsScreen(onBack: () -> Unit) {
                     editorText = skill.content
                     newSkillName = ""
                     showCreateDialog = false
-                }) { Text("CREATE", color = EmberOrange) }
+                }) { Text(stringResource(R.string.config_create_caps), color = EmberOrange) }
             },
             dismissButton = {
-                TextButton(onClick = { showCreateDialog = false }) { Text("CANCEL", color = SoftWhite) }
+                TextButton(onClick = { showCreateDialog = false }) { Text(stringResource(R.string.config_cancel_caps), color = SoftWhite) }
             },
             containerColor = DeepBlack,
         )
@@ -217,11 +219,11 @@ fun SkillsScreen(onBack: () -> Unit) {
                     SkillSettingsManager.save(context, skill.id, skill.path, editorText)
                     reload()
                     editing = null
-                    Toast.makeText(context, "Skill saved", Toast.LENGTH_SHORT).show()
-                }) { Text("SAVE", color = EmberOrange) }
+                    Toast.makeText(context, context.getString(R.string.config_skills_saved_toast), Toast.LENGTH_SHORT).show()
+                }) { Text(stringResource(R.string.config_save_caps), color = EmberOrange) }
             },
             dismissButton = {
-                TextButton(onClick = { editing = null }) { Text("CANCEL", color = SoftWhite) }
+                TextButton(onClick = { editing = null }) { Text(stringResource(R.string.config_cancel_caps), color = SoftWhite) }
             },
             containerColor = DeepBlack,
         )
@@ -248,7 +250,7 @@ private fun SkillRow(
                 Text(skill.title, color = SoftWhite, fontWeight = FontWeight.Bold)
                 Text(skill.status, color = MutedGray, style = MaterialTheme.typography.bodySmall)
                 Text(
-                    "Modified ${DateFormat.format("MMM d, h:mm a", skill.lastModified)}",
+                    stringResource(R.string.config_modified, DateFormat.format("MMM d, h:mm a", skill.lastModified).toString()),
                     color = MutedGray.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.labelSmall,
                 )
@@ -262,7 +264,7 @@ private fun SkillRow(
                 IconButton(onClick = onReset) {
                     Icon(
                         Icons.Rounded.RestartAlt,
-                        contentDescription = "Reset starter skill",
+                        contentDescription = stringResource(R.string.config_skills_reset_cd),
                         tint = MutedGray,
                         modifier = Modifier.size(20.dp),
                     )
