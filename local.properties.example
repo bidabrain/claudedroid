@@ -1,0 +1,7 @@
+# Copy to local.properties (gitignored) and fill in. Values are compiled into BuildConfig.
+sdk.dir=C:/Users/<you>/AppData/Local/Android/Sdk
+LLM_PROVIDER=custom
+LLM_BASE_URL=https://api.anthropic.com/v1
+LLM_MODEL=claude-sonnet-5-5
+LLM_API_KEY=
+GOOGLE_CLIENT_SECRET=
