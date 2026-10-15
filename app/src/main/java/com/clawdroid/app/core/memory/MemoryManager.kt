@@ -12,6 +12,9 @@ class MemoryManager(private val context: Context) {
 
     companion object {
         private const val TAG = "MemoryManager"
+        // memory.md is injected into every new conversation's system prompt, so keep it bounded.
+        private const val MAX_SESSION_SUMMARIES = 10
+        private const val SESSION_MARKER = "\n---\n## Session:"
     }
 
     init {
@@ -19,6 +22,8 @@ class MemoryManager(private val context: Context) {
         if (!memoryFile.exists()) {
             memoryFile.writeText(buildInitialMemory())
             Log.i(TAG, "Created initial memory.md")
+        } else {
+            pruneSessionSummaries()
         }
     }
 
@@ -41,8 +46,26 @@ class MemoryManager(private val context: Context) {
             }
             memoryFile.appendText(entry)
             Log.i(TAG, "Session summary appended to memory")
+            pruneSessionSummaries()
         } catch (e: Exception) {
             Log.w(TAG, "Failed to append session summary", e)
+        }
+    }
+
+    /** Keeps the header and Known Facts, plus only the most recent session summaries. */
+    private fun pruneSessionSummaries() {
+        try {
+            val text = memoryFile.readText().replace("\r\n", "\n")
+            val starts = generateSequence(text.indexOf(SESSION_MARKER).takeIf { it >= 0 }) { prev ->
+                text.indexOf(SESSION_MARKER, prev + 1).takeIf { it >= 0 }
+            }.toList()
+            if (starts.size <= MAX_SESSION_SUMMARIES) return
+            val header = text.substring(0, starts.first())
+            val kept = text.substring(starts[starts.size - MAX_SESSION_SUMMARIES])
+            memoryFile.writeText(header + kept)
+            Log.i(TAG, "Pruned ${starts.size - MAX_SESSION_SUMMARIES} old session summaries")
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to prune session summaries", e)
         }
     }
 
