@@ -1,5 +1,6 @@
 package com.clawdroid.app.data.api
 
+import com.clawdroid.app.core.control.ScreenReaderService
 import com.clawdroid.app.data.db.ConversationDao
 import com.clawdroid.app.data.db.MessageDao
 import com.clawdroid.app.data.db.MessageEntity
@@ -45,7 +46,7 @@ class ContextBuilder(
 
         // 1. System prompt
         if (includeSystemPrompt) {
-            result += ChatMessage(role = "system", content = buildSystemPrompt())
+            result += ChatMessage(role = "system", content = systemPromptFor(conversationId))
         }
 
         // 2. Determine start index based on compaction
@@ -180,6 +181,25 @@ class ContextBuilder(
 
     fun buildSystemPrompt(): String {
         return MessageBuilder.buildSystemPrompt(context, projectId)
+    }
+
+    /**
+     * The system prompt is the start of the prompt-cache prefix, so it is frozen for the lifetime of
+     * a conversation: memory appended after each run (and other edits) reach the next conversation
+     * instead of invalidating this one's cache on every message. Toggling screen control still
+     * rebuilds it because that section changes which tools the agent should reach for.
+     */
+    private fun systemPromptFor(conversationId: String): String {
+        val key = "$conversationId|${ScreenReaderService.instance != null}"
+        return synchronized(systemPrompts) {
+            systemPrompts.getOrPut(key) { buildSystemPrompt() }
+        }
+    }
+
+    private companion object {
+        private val systemPrompts = object : LinkedHashMap<String, String>(16, 0.75f, true) {
+            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, String>?) = size > 32
+        }
     }
 }
 

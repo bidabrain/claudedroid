@@ -65,6 +65,19 @@ android {
         buildConfigField("String", "GOOGLE_CLIENT_SECRET", googleClientSecret.asBuildConfigString())
     }
 
+    packaging {
+        resources {
+            // Duplicate license/notice metadata from the Claude SDK's transitive dependencies.
+            excludes += setOf(
+                "META-INF/DEPENDENCIES",
+                "META-INF/LICENSE*",
+                "META-INF/NOTICE*",
+                "META-INF/INDEX.LIST",
+                "META-INF/versions/9/OSGI-INF/MANIFEST.MF",
+            )
+        }
+    }
+
     buildFeatures {
         buildConfig = true
         compose = true
@@ -109,6 +122,8 @@ dependencies {
     implementation("io.noties.markwon:ext-tables:4.6.2")
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    // Official Claude SDK: native Messages API (prompt caching, thinking blocks).
+    implementation("com.anthropic:anthropic-java:2.34.0")
     ksp("androidx.room:room-compiler:2.8.4")
 
     debugImplementation("androidx.compose.ui:ui-tooling")

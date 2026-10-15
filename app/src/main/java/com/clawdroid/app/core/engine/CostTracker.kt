@@ -11,10 +11,15 @@ data class CostState(
     val estimatedCostUsd: Double = 0.0,
 )
 
+/**
+ * Running cost estimate. `inputTokens` is the full prompt size including cache reads, which are
+ * billed at the cheaper cached rate instead. Defaults are Claude Sonnet 5.5 list prices
+ * (cache writes are billed slightly above the input rate; ignored here).
+ */
 class CostTracker(
-    private val inputUsdPerMillionTokens: Double = 0.15, // Sleek modern models default pricing
-    private val outputUsdPerMillionTokens: Double = 0.60,
-    private val cachedUsdPerMillionTokens: Double = 0.03, // Typically 50% to 90% cheaper or free
+    private val inputUsdPerMillionTokens: Double = 2.00,
+    private val outputUsdPerMillionTokens: Double = 10.00,
+    private val cachedUsdPerMillionTokens: Double = 0.20,
 ) {
     private val mutableState = MutableStateFlow(CostState())
     val state: StateFlow<CostState> = mutableState.asStateFlow()
@@ -43,7 +48,8 @@ class CostTracker(
     }
 
     private fun estimateCost(inputTokens: Int, outputTokens: Int, cachedTokens: Int): Double {
-        return (inputTokens / 1_000_000.0 * inputUsdPerMillionTokens) +
+        val uncachedInput = (inputTokens - cachedTokens).coerceAtLeast(0)
+        return (uncachedInput / 1_000_000.0 * inputUsdPerMillionTokens) +
                 (outputTokens / 1_000_000.0 * outputUsdPerMillionTokens) +
                 (cachedTokens / 1_000_000.0 * cachedUsdPerMillionTokens)
     }
